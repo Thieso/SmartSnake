@@ -4,7 +4,6 @@
 #include "include/Snake.h"
 #include "include/Food.h"
 
-
 using namespace std;
 
 void drawMatrix(sf::RenderWindow*);
