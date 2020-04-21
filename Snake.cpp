@@ -41,16 +41,12 @@ void Snake::moveSnake(const int x, const int y){
     // get window size
     sf::Vector2u winSize = win->getSize();
 
-    //DEBUG
-    //cout << "x = " << x << " y = " << y << endl;
-
     // set the new position of the elements by setting it to the previous
     // position of the element before it (works for all element except the
     // head)
     for (int i = 0; i < length-1; i++){
         sf::Vector2f prevPos = elements[i].getPosition();
         newPos[i] = prevPos;
-        cout << i << endl;
     }
 
 
@@ -78,15 +74,9 @@ void Snake::moveSnake(const int x, const int y){
     // draw the head
     win->draw(elements[0]);
 
-    //DEBUG
-    //headPos = elements[0].getPosition();
-    //cout << "Drawing head "<< " at " << headPos.x << " " <<  headPos.y << endl;
-
     // draw the elements
     for (int i = 0; i < length - 1; i++){
         elements[i+1].setPosition(newPos[i]);
-        //DEBUG
-        //cout << "Drawing element " << i+1 << " at " << newPos[i].x << " " <<  newPos[i].y << endl;
         win->draw(elements[i+1]);
     }
 }
