@@ -1,10 +1,4 @@
-#include <vector>
-#include <iostream>
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
 #include "include/Snake.h"
-
-using namespace std;
 
 // constructor
 Snake::Snake(sf::RenderWindow* window) {

@@ -1,6 +1,3 @@
-#include <iostream>
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
 #include "include/Food.h"
 
 using namespace std;
