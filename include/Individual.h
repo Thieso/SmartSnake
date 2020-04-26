@@ -1,8 +1,9 @@
+#pragma once
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <random>
 #include "include/Snake.h"
-#include "include/Food.h"
 #include "include/NN.h"
 
 using namespace std;
@@ -13,6 +14,10 @@ class Individual {
         vector<vector<float>> wh; // matrix of weights for hidden layer
         vector<vector<float>> wo; // matrix of weights for output layer
     public:
-        Individual();
-        int evaluate_fitness(NN);
+        Individual(int, int, int);
+        int evaluate_fitness(NN*);
+        void drawMatrix(sf::RenderWindow*, int, int);
+        int show_game(sf::RenderWindow*, NN*);
+        vector<vector<float>> get_hidden_weights();
+        vector<vector<float>> get_output_weights();
 };

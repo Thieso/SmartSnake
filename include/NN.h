@@ -1,5 +1,7 @@
+#pragma once
 #include <vector>
-#include <random>
+#include <math.h>
+#include <numeric>
 
 using namespace std; 
 
@@ -19,5 +21,7 @@ class NN {
         NN(float, float, float);
         vector<float> forward_propagation();
         void set_weights(vector<vector<float>>, vector<vector<float>>);
+        void set_input(vector<float>);
+        vector<float> get_output();
         float sigmoid(float);
 };

@@ -1,10 +1,11 @@
 CC=g++
-CFLAGS=-c -Wall -std=c++11 -g
 LDFLAGS=-g
 LIBFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
-SOURCES=main.cpp Snake.cpp
+SOURCES=main.cpp Snake.cpp NN.cpp Individual.cpp GA.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=main
+INC_DIR=./include
+CFLAGS=-c -Wall -std=c++11 -g -I$(INC_DIR)/..
 BINDIR=/usr/bin
 
 all: $(SOURCES) $(EXECUTABLE)

@@ -26,13 +26,13 @@ void Snake::addElement(){
 }
 
 // move the snake in direction x and y
-void Snake::moveSnake(const int x, const int y){
+void Snake::moveSnake(){
     // move everything but the head
     for (int i = length; i > 0; i--){
         elements[i].setPosition(elements[i-1].getPosition());
     }
     // move the head
-    elements[0].move(x, y);
+    elements[0].move(xDirection, yDirection);
 }
 
 // check for collisions in the snake itself or with the wall
@@ -113,4 +113,27 @@ void Snake::setFood() {
             }
         }
     }
+}
+
+// returns the inputs needed to train the neural network, the return vector
+// contains information of the current game state
+vector<float> Snake::getInputs() {
+    vector<float> inputs;
+    // position of the head (normalized)
+    inputs.push_back(elements[0].getPosition().x / x);
+    inputs.push_back(elements[0].getPosition().y / y);
+    // position of the food
+    inputs.push_back(food.getPosition().x / x);
+    inputs.push_back(food.getPosition().y / y);
+    // direction of movement (normalized)
+    inputs.push_back((xDirection + 1)/2);
+    inputs.push_back((yDirection + 1)/2);
+
+    return inputs;
+}
+
+// set direction of the snake
+void Snake::setDirection(int x, int y) {
+    xDirection = x;
+    yDirection = y;
 }

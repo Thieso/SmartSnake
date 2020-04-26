@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <iostream>
 #include <SFML/Window.hpp>
@@ -12,6 +13,8 @@ class Snake {
         unsigned int length;                 // length of the snake
         unsigned const int x = 25;           // size of field in x
         unsigned const int y = 25;           // size of field in y
+        int xDirection;                      // direction of movement in x
+        int yDirection;                      // direction of movement in y
 
     public: 
         Snake(); 
@@ -19,9 +22,11 @@ class Snake {
         unsigned int getLength(); 
         sf::Vector2f getHead(); 
         void addElement(); 
-        void moveSnake(const int, const int); 
+        void moveSnake(); 
         int checkCollision(); 
         int checkFood();
         void setFood();
         void drawSnake(sf::RenderWindow*, int, int); 
+        vector<float> getInputs();
+        void setDirection(int, int);
 };

@@ -23,19 +23,6 @@ NN::NN(float nr_inputs, float nr_outputs, float nr_neurons) {
     for (int i = 0; i < nr_neurons; ++i) {
         wo[i].resize(this->nr_neurons);
     }
-    // randomize the weights
-    default_random_engine generator;
-    uniform_real_distribution<double> distribution(0.0, 1.0);
-    for (int i = 0; i < nr_neurons; ++i) {
-        for (int j = 0; j < nr_inputs; ++j) {
-            wh[i][j] = distribution(generator);
-        }
-    }
-    for (int i = 0; i < nr_outputs; ++i) {
-        for (int j = 0; j < nr_neurons; ++j) {
-            wh[i][j] = distribution(generator);
-        }
-    }
 }
 
 
@@ -56,5 +43,18 @@ vector<float> NN::forward_propagation() {
 
 float NN::sigmoid(float x) {
     double y = 1 / (1 + exp(-x));
+    return y;
+}
+
+void NN::set_weights(vector<vector<float>> wh, vector<vector<float>> wo) {
+    this->wh = wh;
+    this->wo = wo;
+}
+
+void NN::set_input(vector<float> input) {
+    x = input;
+}
+
+vector<float> NN::get_output() {
     return y;
 }
