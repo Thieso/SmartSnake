@@ -9,7 +9,7 @@ using namespace std;
 
 void drawMatrix(sf::RenderWindow*);
 
-sf::RenderWindow* window = new  sf::RenderWindow(sf::VideoMode(500, 500), "Snake");
+sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(500, 500), "Snake");
 
 struct direction {
     int x;
@@ -19,7 +19,7 @@ struct direction {
 int main(){
 
     // create a new Snake object
-    Snake* snake = new Snake(window);
+    Snake* snake = new Snake();
 
 
     // create the direction struct with initial moving to the right
@@ -36,15 +36,6 @@ int main(){
     // create clock
     sf::Clock clock;
 
-    // variable for food checking
-    int avaiable = 0;
-
-    // random location for food
-    int randX, randY;
-
-    // create the food
-    Food* food = new Food(window);
-
     // var for game over
     int gameOver = 0;
 
@@ -58,7 +49,6 @@ int main(){
             if (event.type == sf::Event::Closed)
                 window->close();
         }
-
 
         // get keyboard input
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && dir.x == 0) {
@@ -85,52 +75,26 @@ int main(){
         }
 
 
-
-        // place the food
-        if (avaiable == 0){
-            avaiable = 1;
-            /* initialize random seed: */
-            srand (time(NULL));
-
-
-            // generate secret number between 1 and 10:
-            randX = rand() % 24;
-            randY = rand() % 24;
-            randX *= 20;
-            randY *= 20;
-
-            food->setPos(randX, randY);
-        }
-
-        // check if food got eaten
-        if (avaiable == 1 && snake->getHead() == sf::Vector2f(randX, randY)) {
-            avaiable = 0;
-            snake->addElement();
-        }
-
-
         // check for collision
         if (snake->checkCollision() == 1) {
             gameOver = 1;
         }
-
-        //DEBUG
-        //sf::Vector2f h = snake->getHead();
-        //cout << "snake at: x = " << h.x << " y = " << h.y << endl;
-        //food
+        
+        // check if the food got eaten, if so set food to new location and grow
+        // the snake
+        if (snake->checkFood() == 1) {
+            snake->addElement();
+            snake->setFood();
+        }
 
         // draw a Matrix
         drawMatrix(window);
-
-        // draw the food
-        food->drawFood();
 
         // Display all the changes on the screen
         window->display();
     }
 
 
-    delete food;
     return 0;
 }
 

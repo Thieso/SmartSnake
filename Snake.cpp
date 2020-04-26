@@ -1,19 +1,16 @@
 #include "include/Snake.h"
 
 // constructor
-Snake::Snake(sf::RenderWindow* window) {
+Snake::Snake() {
     // initialize parameters
     length = 1;
-    win = window;
     elements.resize(length);
-    elements[0].setSize(sf::Vector2f(xSize, ySize));
-    elements[0].setFillColor(sf::Color(0, 0, 255));
-    newPos.resize(length-1);
+    // set initial position in the middle of the field
+    elements[0].setPosition(sf::Vector2f(12, 12));
 }
 
 // destructor
 Snake::~Snake() {
-    delete win;
 }
 
 // returns the length of the snake
@@ -25,62 +22,21 @@ unsigned int Snake::getLength(){
 void Snake::addElement(){
     length += 1;
     elements.resize(length);
-    elements[length-1].setSize(sf::Vector2f(xSize, ySize));
-    elements[length-1].setFillColor(sf::Color(0, 255, 0));
-    newPos.resize(length-1);
+    //elements[length-1].setSize(sf::Vector2f(xSize, ySize));
+    //elements[length-1].setFillColor(sf::Color(0, 255, 0));
 }
 
 // move the snake in direction x and y
 void Snake::moveSnake(const int x, const int y){
-    // get window size
-    sf::Vector2u winSize = win->getSize();
-
-    // set the new position of the elements by setting it to the previous
-    // position of the element before it (works for all element except the
-    // head)
-    for (int i = 0; i < length-1; i++){
-        sf::Vector2f prevPos = elements[i].getPosition();
-        newPos[i] = prevPos;
+    // move everything but the head
+    for (int i = length; i > 0; i--){
+        elements[i].setPosition(elements[i-1].getPosition());
     }
-
-
     // move the head
-    elements[0].move(x * step, y * step);
-    // get position of the head
-    sf::Vector2f headPos = elements[0].getPosition();
-    // get size of the head
-    sf::Vector2f headSize = elements[0].getSize();
-
-    // move through the wall and appear at the other side if necessary
-    if (headPos.x + headSize.x > winSize.x && x == 1){
-        elements[0].setPosition(0, headPos.y);
-    }
-    if (headPos.x < 0 && x == -1) {
-        elements[0].setPosition(winSize.x - headSize.x, headPos.y);
-    }
-    if (headPos.y + headSize.y > winSize.y && y == 1) {
-        elements[0].setPosition(headPos.x, 0);
-    }
-    if (headPos.y < 0 && y == -1) {
-        elements[0].setPosition(headPos.x, winSize.y - headSize.y);
-    }
-
-    // draw the head
-    win->draw(elements[0]);
-
-    // draw the elements
-    for (int i = 0; i < length - 1; i++){
-        elements[i+1].setPosition(newPos[i]);
-        win->draw(elements[i+1]);
-    }
+    elements[0].move(x, y);
 }
 
-// return the position of the head of the snake
-sf::Vector2f Snake::getHead() {
-    return elements[0].getPosition();
-}
-
-// check for collisions in the snake itself
+// check for collisions in the snake itself or with the wall
 // return 1 if a collision is there, otherwise return zero
 int Snake::checkCollision() {
     // compare the position of the head with the position of each element and if
@@ -90,5 +46,62 @@ int Snake::checkCollision() {
             return 1;
         }
     }
+
+    // get position of the head
+    sf::Vector2f headPos = elements[0].getPosition();
+    // get size of the head
+    sf::Vector2f headSize = elements[0].getSize();
+
+    // check for collision with the wall
+    if (headPos.x > x || headPos.x < 0 || headPos.y > y || headPos.y < 0){
+        return 1;
+    }
     return 0;
+}
+
+// draw snake on the screen
+void Snake::drawSnake(sf::RenderWindow* win, int xSize, int ySize) {
+    sf::Vector2f pos;
+    sf::RectangleShape drawingShape;
+    // set size and color of elements and draw it
+    for (int i = 0; i < length; i++){
+        // position
+        pos = elements[i].getPosition();
+        drawingShape.setPosition(sf::Vector2f(pos.x * xSize, pos.y * ySize));
+        // color (color of head is different from the rest)
+        if (i > 0){
+            drawingShape.setFillColor(sf::Color(0, 255, 0));
+        } else {
+            drawingShape.setFillColor(sf::Color(0, 0, 255));
+        }
+        win->draw(drawingShape);
+    }
+    // set size and color of food and draw it
+    pos = food.getPosition();
+    drawingShape.setPosition(sf::Vector2f(pos.x * xSize, pos.y * ySize));
+    drawingShape.setFillColor(sf::Color(255, 0, 0));
+    win->draw(drawingShape);
+}
+
+// return the position of the head of the snake
+sf::Vector2f Snake::getHead() {
+    return elements[0].getPosition();
+}
+
+// checks wheter or not the snake is eating the food
+// returns 1 if it is eating, otherwise 0
+int Snake::checkFood() {
+    if (elements[0].getPosition() == food.getPosition())
+        return 1;
+    return 0;
+}
+
+void Snake::setFood() {
+    // generate random number
+    srand(time(NULL));
+    int randX = rand() % x;
+    int randY = rand() % y;
+
+    // set position of food
+    food.setPosition(sf::Vector2f(randX, randY));
 }

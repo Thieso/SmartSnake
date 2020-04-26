@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-c -Wall -std=c++11 -g
 LDFLAGS=-g
 LIBFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
-SOURCES=main.cpp Snake.cpp Food.cpp
+SOURCES=main.cpp Snake.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=main
 BINDIR=/usr/bin

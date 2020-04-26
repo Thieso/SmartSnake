@@ -8,19 +8,21 @@ using namespace std;
 class Snake {
     private: 
         vector<sf::RectangleShape> elements; // elements of the snake
-        vector<sf::Vector2f> newPos;         // new positions of the elements after moving
+        sf::RectangleShape food;             // food for the snake
         unsigned int length;                 // length of the snake
-        sf::RenderWindow* win;               // window to draw in
-        unsigned const int xSize = 20;       // size of each element in x direction
-        unsigned const int ySize = 20;       // size of each element in y direction
-        const int step = 20;                 // step size of the snake
+        unsigned const int x = 25;           // size of field in x
+        unsigned const int y = 25;           // size of field in y
 
     public: 
-        Snake(sf::RenderWindow*); 
+        Snake(); 
         ~Snake(); 
         unsigned int getLength(); 
         sf::Vector2f getHead(); 
         void addElement(); 
         void moveSnake(const int, const int); 
         int checkCollision(); 
+        int checkFood();
+        int getLength();
+        void setFood();
+        void drawSnake(sf::RenderWindow*, int, int); 
 };

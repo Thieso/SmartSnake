@@ -8,6 +8,7 @@ NN::NN() {
 }
 
 NN::NN(float nr_inputs, float nr_outputs, float nr_neurons) {
+    this->bias = 1;
     this->nr_inputs = nr_inputs;
     this->nr_outputs = nr_outputs;
     this->nr_neurons = nr_neurons;
@@ -35,4 +36,25 @@ NN::NN(float nr_inputs, float nr_outputs, float nr_neurons) {
             wh[i][j] = distribution(generator);
         }
     }
+}
+
+
+vector<float> NN::forward_propagation() {
+    vector<float> a(nr_neurons);
+    // compute from input to hidden layer
+    for (int i = 0; i < nr_neurons; ++i) {
+        a[i] = inner_product(wh[i].begin(), wh[i].end(), x.begin(), 0) + bias;
+        a[i] = sigmoid(a[i]);
+    }
+    // compute from hidden layer to output
+    for (int i = 0; i < nr_outputs; ++i) {
+        this->y[i] = inner_product(wo[i].begin(), wo[i].end(), a.begin(), 0) + bias;
+        this->y[i] = sigmoid(this->y[i]);
+    }
+    return this->y;
+}
+
+float NN::sigmoid(float x) {
+    double y = 1 / (1 + exp(-x));
+    return y;
 }
