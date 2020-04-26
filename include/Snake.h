@@ -22,7 +22,6 @@ class Snake {
         void moveSnake(const int, const int); 
         int checkCollision(); 
         int checkFood();
-        int getLength();
         void setFood();
         void drawSnake(sf::RenderWindow*, int, int); 
 };

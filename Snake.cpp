@@ -7,6 +7,8 @@ Snake::Snake() {
     elements.resize(length);
     // set initial position in the middle of the field
     elements[0].setPosition(sf::Vector2f(12, 12));
+    // set inital position of the food
+    this->setFood();
 }
 
 // destructor
@@ -21,9 +23,6 @@ unsigned int Snake::getLength(){
 // adds an element to the snake
 void Snake::addElement(){
     length += 1;
-    elements.resize(length);
-    //elements[length-1].setSize(sf::Vector2f(xSize, ySize));
-    //elements[length-1].setFillColor(sf::Color(0, 255, 0));
 }
 
 // move the snake in direction x and y
@@ -47,12 +46,8 @@ int Snake::checkCollision() {
         }
     }
 
-    // get position of the head
+    // check for collision of the head with the wall
     sf::Vector2f headPos = elements[0].getPosition();
-    // get size of the head
-    sf::Vector2f headSize = elements[0].getSize();
-
-    // check for collision with the wall
     if (headPos.x > x || headPos.x < 0 || headPos.y > y || headPos.y < 0){
         return 1;
     }
@@ -68,6 +63,7 @@ void Snake::drawSnake(sf::RenderWindow* win, int xSize, int ySize) {
         // position
         pos = elements[i].getPosition();
         drawingShape.setPosition(sf::Vector2f(pos.x * xSize, pos.y * ySize));
+        drawingShape.setSize(sf::Vector2f(xSize, ySize));
         // color (color of head is different from the rest)
         if (i > 0){
             drawingShape.setFillColor(sf::Color(0, 255, 0));
@@ -80,6 +76,7 @@ void Snake::drawSnake(sf::RenderWindow* win, int xSize, int ySize) {
     pos = food.getPosition();
     drawingShape.setPosition(sf::Vector2f(pos.x * xSize, pos.y * ySize));
     drawingShape.setFillColor(sf::Color(255, 0, 0));
+    drawingShape.setSize(sf::Vector2f(xSize, ySize));
     win->draw(drawingShape);
 }
 
@@ -97,11 +94,23 @@ int Snake::checkFood() {
 }
 
 void Snake::setFood() {
-    // generate random number
+    // initialize random number generator
     srand(time(NULL));
-    int randX = rand() % x;
-    int randY = rand() % y;
+    int randX, randY;
 
-    // set position of food
-    food.setPosition(sf::Vector2f(randX, randY));
+    // set position such that the food is never on the body of the snake
+    bool badPosition = true;
+    while (badPosition) {
+        // set position randomly
+        randX = rand() % (this->x);
+        randY = rand() % (this->y);
+        food.setPosition(sf::Vector2f(randX, randY));
+        // check if the position is on the snake body
+        badPosition = false;
+        for (int i = 0; i < length; i++){
+            if (food.getPosition() == elements[i].getPosition()){
+                badPosition = true;
+            }
+        }
+    }
 }

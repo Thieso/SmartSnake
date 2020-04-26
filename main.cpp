@@ -7,7 +7,7 @@
 using namespace std;
 
 
-void drawMatrix(sf::RenderWindow*);
+void drawMatrix(sf::RenderWindow*, int, int);
 
 sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(500, 500), "Snake");
 
@@ -17,6 +17,9 @@ struct direction {
 };
 
 int main(){
+    // set size of the rectangles
+    int xSize = 20;
+    int ySize = 20;
 
     // create a new Snake object
     Snake* snake = new Snake();
@@ -67,13 +70,6 @@ int main(){
             dir.x = 0;
             dir.y = 1;
         }
-        // if a certain time elapsed, move the snake
-        if (clock.getElapsedTime().asMilliseconds() >= speed){
-            window->clear();
-            clock.restart();
-            snake->moveSnake(dir.x, dir. y);
-        }
-
 
         // check for collision
         if (snake->checkCollision() == 1) {
@@ -87,8 +83,16 @@ int main(){
             snake->setFood();
         }
 
+        // if a certain time elapsed, move and draw the snake
+        if (clock.getElapsedTime().asMilliseconds() >= speed){
+            window->clear();
+            clock.restart();
+            snake->moveSnake(dir.x, dir. y);
+            snake->drawSnake(window, xSize, ySize);
+        }
+
         // draw a Matrix
-        drawMatrix(window);
+        drawMatrix(window, xSize, ySize);
 
         // Display all the changes on the screen
         window->display();
@@ -98,24 +102,28 @@ int main(){
     return 0;
 }
 
-void drawMatrix(sf::RenderWindow* window) {
-
+void drawMatrix(sf::RenderWindow* window, int xSize, int ySize) {
+    // color of matrix lines
     int grey = 50;
-    bool x = true; 
-
     sf::Color color(grey, grey, grey);
 
-    for (int i = 20; i < 800; i += 20){
+    // get window size
+    sf::Vector2u wSize = window->getSize();
+
+    // draw matrix
+    for (int i = xSize; i < wSize.x; i += xSize) {
         sf::Vertex lineV[] =
         {
             sf::Vertex(sf::Vector2f(i, 0), color),
-            sf::Vertex(sf::Vector2f(i, 800), color)
+            sf::Vertex(sf::Vector2f(i, wSize.x), color)
         };
         window->draw(lineV, 2, sf::Lines);
+    }
+    for (int i = ySize; i < wSize.y; i += ySize) {
         sf::Vertex lineH[] =
         {
             sf::Vertex(sf::Vector2f(0, i), color),
-            sf::Vertex(sf::Vector2f(800, i),color)
+            sf::Vertex(sf::Vector2f(wSize.y, i),color)
         };
         window->draw(lineH, 2, sf::Lines);
     }
