@@ -8,7 +8,7 @@ Individual::Individual(int nr_inputs, int nr_outputs, int nr_neurons) {
         wh[i].resize(nr_inputs);
     }
     this->wo.resize(nr_outputs);
-    for (int i = 0; i < nr_neurons; ++i) {
+    for (int i = 0; i < nr_outputs; ++i) {
         wo[i].resize(nr_neurons);
     }
     // randomize the weights
@@ -57,8 +57,17 @@ int Individual::evaluate_fitness(NN* nn) {
         inputs = snake->getInputs();
         nn->set_input(inputs);
 
+        //for (vector<float>::const_iterator i = inputs.begin(); i != inputs.end(); ++i)
+            //cout << *i << ' ';
+        //cout << endl;
+
         // obtain output of neural network
         outputs = nn->forward_propagation();
+
+        //for (vector<float>::const_iterator i = outputs.begin(); i != outputs.end(); ++i)
+            //cout << *i << ' ';
+        //cout << endl;
+        //cout << "------" << endl;
         
         if (outputs[0] > 0.5 && dir.x == 0) {
             dir.x = -1;
@@ -90,6 +99,7 @@ int Individual::evaluate_fitness(NN* nn) {
         }
 
         // move the snake
+        snake->setDirection(dir.x, dir.y);
         snake->moveSnake();
     }
     return snake->getLength();
@@ -145,10 +155,9 @@ int Individual::show_game(sf::RenderWindow* window, NN* nn) {
         inputs = snake->getInputs();
         nn->set_input(inputs);
 
-
         // obtain output of neural network
         outputs = nn->forward_propagation();
-        
+
         if (outputs[0] > 0.5 && dir.x == 0) {
             dir.x = -1;
             dir.y = 0;
@@ -183,6 +192,7 @@ int Individual::show_game(sf::RenderWindow* window, NN* nn) {
         if (clock.getElapsedTime().asMilliseconds() >= speed){
             window->clear();
             clock.restart();
+            snake->setDirection(dir.x, dir.y);
             snake->moveSnake();
             snake->drawSnake(window, xSize, ySize);
         }

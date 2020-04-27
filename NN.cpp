@@ -13,14 +13,14 @@ NN::NN(float nr_inputs, float nr_outputs, float nr_neurons) {
     this->nr_outputs = nr_outputs;
     this->nr_neurons = nr_neurons;
     // initialize all vectors and matrices with the correct sizes
-    this->x.resize(this->nr_inputs);
-    this->y.resize(this->nr_outputs);
-    this->wh.resize(this->nr_neurons);
-    for (int i = 0; i < nr_neurons; ++i) {
+    x.resize(this->nr_inputs);
+    y.resize(this->nr_outputs);
+    wh.resize(this->nr_neurons);
+    for (int i = 0; i < this->nr_neurons; ++i) {
         wh[i].resize(this->nr_inputs);
     }
-    this->wo.resize(this->nr_outputs);
-    for (int i = 0; i < nr_neurons; ++i) {
+    wo.resize(this->nr_outputs);
+    for (int i = 0; i < this->nr_outputs; ++i) {
         wo[i].resize(this->nr_neurons);
     }
 }
