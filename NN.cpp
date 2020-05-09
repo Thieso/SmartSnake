@@ -1,32 +1,18 @@
 #include "include/NN.h"
 
-NN::NN() {
-    int nr_inputs = 1;
-    int nr_outputs = 1;
-    int nr_neurons = 3;
-    NN(nr_inputs, nr_outputs, nr_neurons);
-}
-
 NN::NN(float nr_inputs, float nr_outputs, float nr_neurons) {
-    this->bias = 1;
+    this->bias = 0.0;
     this->nr_inputs = nr_inputs;
     this->nr_outputs = nr_outputs;
     this->nr_neurons = nr_neurons;
     // initialize all vectors and matrices with the correct sizes
-    x.resize(this->nr_inputs);
-    y.resize(this->nr_outputs);
-    wh.resize(this->nr_neurons);
-    for (int i = 0; i < this->nr_neurons; ++i) {
-        wh[i].resize(this->nr_inputs);
-    }
-    wo.resize(this->nr_outputs);
-    for (int i = 0; i < this->nr_outputs; ++i) {
-        wo[i].resize(this->nr_neurons);
-    }
+    wh.assign(nr_neurons, vector<float>(nr_inputs));
+    wo.assign(nr_outputs, vector<float>(nr_neurons));
 }
 
-
+// perform a forward propagation in the network
 vector<float> NN::forward_propagation() {
+    y.clear();
     vector<float> a(nr_neurons);
     // compute from input to hidden layer
     for (int i = 0; i < nr_neurons; ++i) {
@@ -35,26 +21,31 @@ vector<float> NN::forward_propagation() {
     }
     // compute from hidden layer to output
     for (int i = 0; i < nr_outputs; ++i) {
-        this->y[i] = inner_product(wo[i].begin(), wo[i].end(), a.begin(), 0) + bias;
-        this->y[i] = sigmoid(this->y[i]);
+        y.push_back(sigmoid(inner_product(wo[i].begin(), wo[i].end(), a.begin(), 0) + bias));
     }
-    return this->y;
+    return y;
 }
 
+// sigmoid function as activation function
 float NN::sigmoid(float x) {
     double y = 1 / (1 + exp(-x));
     return y;
 }
 
+// set the weights inside the network
 void NN::set_weights(vector<vector<float>> wh, vector<vector<float>> wo) {
     this->wh = wh;
     this->wo = wo;
 }
 
+// set the input for the network
 void NN::set_input(vector<float> input) {
-    x = input;
+    x.clear();
+    for (int i = 0; i < input.size(); i++)
+        x.push_back(input[i]);
 }
 
+// get the output from the network
 vector<float> NN::get_output() {
     return y;
 }

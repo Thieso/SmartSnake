@@ -26,7 +26,8 @@ class Snake {
         int checkCollision(); 
         int checkFood();
         void setFood();
-        void drawSnake(sf::RenderWindow*, int, int); 
+        vector<sf::RectangleShape> getSnakeDrawingShapes(int, int);
+        sf::RectangleShape getFoodDrawingShape(int, int);
         vector<float> getInputs();
         void setDirection(int, int);
 };

@@ -2,28 +2,26 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "include/Snake.h"
-#include "include/Food.h"
 
 using namespace std;
 
-
 void drawMatrix(sf::RenderWindow*, int, int);
-
-sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(500, 500), "Snake");
 
 struct direction {
     int x;
     int y;
 };
 
-int main(){
+int main() {
+    // define window 
+    sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(500, 500), "Snake");
+
     // set size of the rectangles
     int xSize = 20;
     int ySize = 20;
 
     // create a new Snake object
     Snake* snake = new Snake();
-
 
     // create the direction struct with initial moving to the right
     struct direction dir;
@@ -45,8 +43,6 @@ int main(){
     // run program as long as the window is open
     while (window->isOpen() && gameOver == 0) {
         sf::Event event;
-
-
         while(window->pollEvent(event)) {
             // "close requested" event: we close the window
             if (event.type == sf::Event::Closed)
@@ -87,7 +83,8 @@ int main(){
         if (clock.getElapsedTime().asMilliseconds() >= speed){
             window->clear();
             clock.restart();
-            snake->moveSnake(dir.x, dir. y);
+            snake->setDirection(dir.x, dir. y);
+            snake->moveSnake();
             snake->drawSnake(window, xSize, ySize);
         }
 
@@ -99,6 +96,8 @@ int main(){
     }
 
 
+    free(window);
+    free(snake);
     return 0;
 }
 

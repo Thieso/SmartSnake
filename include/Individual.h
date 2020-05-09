@@ -15,9 +15,10 @@ class Individual {
         vector<vector<float>> wo; // matrix of weights for output layer
     public:
         Individual(int, int, int);
-        int evaluate_fitness(NN*);
-        void drawMatrix(sf::RenderWindow*, int, int);
-        int show_game(sf::RenderWindow*, NN*);
+        int evaluate_fitness(int, int, int);
+        int show_game(int, int, int);
         vector<vector<float>> get_hidden_weights();
         vector<vector<float>> get_output_weights();
+        vector<float> get_gene_vector();
+        void set_gene_vector(vector<float>);
 };

@@ -17,7 +17,6 @@ class NN {
         vector<vector<float>> wo; // matrix of weights for output layer
 
     public: 
-        NN();
         NN(float, float, float);
         vector<float> forward_propagation();
         void set_weights(vector<vector<float>>, vector<vector<float>>);

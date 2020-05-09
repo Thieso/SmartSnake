@@ -54,10 +54,11 @@ int Snake::checkCollision() {
     return 0;
 }
 
-// draw snake on the screen
-void Snake::drawSnake(sf::RenderWindow* win, int xSize, int ySize) {
+// return vector of drawing shapes for the snake body
+vector<sf::RectangleShape> Snake::getSnakeDrawingShapes(int xSize, int ySize) {
     sf::Vector2f pos;
     sf::RectangleShape drawingShape;
+    vector<sf::RectangleShape> drawingShapes;
     // set size and color of elements and draw it
     for (int i = 0; i < length; i++){
         // position
@@ -70,14 +71,24 @@ void Snake::drawSnake(sf::RenderWindow* win, int xSize, int ySize) {
         } else {
             drawingShape.setFillColor(sf::Color(0, 0, 255));
         }
-        win->draw(drawingShape);
+        drawingShapes.push_back(drawingShape);
     }
-    // set size and color of food and draw it
+    return drawingShapes;
+}
+
+// return drawable shape of the food
+sf::RectangleShape Snake::getFoodDrawingShape(int xSize, int ySize) {
+    sf::RectangleShape drawingShape;
+    sf::Vector2f pos;
+
+    // set position, color, and size of shape
     pos = food.getPosition();
     drawingShape.setPosition(sf::Vector2f(pos.x * xSize, pos.y * ySize));
     drawingShape.setFillColor(sf::Color(255, 0, 0));
     drawingShape.setSize(sf::Vector2f(xSize, ySize));
-    win->draw(drawingShape);
+
+    // return the shape
+    return drawingShape;
 }
 
 // return the position of the head of the snake

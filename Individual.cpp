@@ -3,14 +3,8 @@
 // constructor using the number of inputs outputs and neurons of the neural
 // network as parameters
 Individual::Individual(int nr_inputs, int nr_outputs, int nr_neurons) {
-    this->wh.resize(nr_neurons);
-    for (int i = 0; i < nr_neurons; ++i) {
-        wh[i].resize(nr_inputs);
-    }
-    this->wo.resize(nr_outputs);
-    for (int i = 0; i < nr_outputs; ++i) {
-        wo[i].resize(nr_neurons);
-    }
+    wh.assign(nr_neurons, vector<float>(nr_inputs));
+    wo.assign(nr_outputs, vector<float>(nr_neurons));
     // randomize the weights
     default_random_engine generator;
     uniform_real_distribution<double> distribution(0.0, 1.0);
@@ -21,19 +15,22 @@ Individual::Individual(int nr_inputs, int nr_outputs, int nr_neurons) {
     }
     for (int i = 0; i < nr_outputs; ++i) {
         for (int j = 0; j < nr_neurons; ++j) {
-            wh[i][j] = distribution(generator);
+            wo[i][j] = distribution(generator);
         }
     }
     fitness = 1;
 }
 
 // evalute the fitness of the individual by running the snake game (no GUI)
-int Individual::evaluate_fitness(NN* nn) {
+int Individual::evaluate_fitness(int nr_inputs, int nr_outputs, int nr_neurons) {
+    // create neural network
+    NN nn(nr_inputs, nr_outputs, nr_neurons);
+
     // set weights for neural network
-    nn->set_weights(wh, wo);
+    nn.set_weights(wh, wo);
 
     // create a new Snake object
-    Snake* snake = new Snake();
+    Snake snake;
 
     // create the direction struct with initial moving to the right
     struct direction {
@@ -54,15 +51,15 @@ int Individual::evaluate_fitness(NN* nn) {
 
     while (gameOver == 0) {
         // set input for neural network
-        inputs = snake->getInputs();
-        nn->set_input(inputs);
+        inputs = snake.getInputs();
+        nn.set_input(inputs);
 
         //for (vector<float>::const_iterator i = inputs.begin(); i != inputs.end(); ++i)
             //cout << *i << ' ';
         //cout << endl;
 
         // obtain output of neural network
-        outputs = nn->forward_propagation();
+        outputs = nn.forward_propagation();
 
         //for (vector<float>::const_iterator i = outputs.begin(); i != outputs.end(); ++i)
             //cout << *i << ' ';
@@ -87,37 +84,43 @@ int Individual::evaluate_fitness(NN* nn) {
         }
 
         // check for collision
-        if (snake->checkCollision() == 1) {
+        if (snake.checkCollision() == 1) {
             gameOver = 1;
         }
         
         // check if the food got eaten, if so set food to new location and grow
         // the snake
-        if (snake->checkFood() == 1) {
-            snake->addElement();
-            snake->setFood();
+        if (snake.checkFood() == 1) {
+            snake.addElement();
+            snake.setFood();
         }
 
         // move the snake
-        snake->setDirection(dir.x, dir.y);
-        snake->moveSnake();
+        snake.setDirection(dir.x, dir.y);
+        snake.moveSnake();
     }
-    return snake->getLength();
+    return snake.getLength();
 }
 
-int Individual::show_game(sf::RenderWindow* window, NN* nn) {
+int Individual::show_game(int nr_inputs, int nr_outputs, int nr_neurons) {
+    // create neural network
+    NN nn(nr_inputs, nr_outputs, nr_neurons);
+
+    // create window
+    sf::RenderWindow window(sf::VideoMode(500, 500), "Snake");
+
     // set weights for neural network
-    nn->set_weights(wh, wo);
+    nn.set_weights(wh, wo);
 
     // set size of the rectangles
     int xSize = 20;
     int ySize = 20;
 
     // create a new Snake object
-    Snake* snake = new Snake();
+    Snake snake;
 
     // set framerate
-    window->setFramerateLimit(30);
+    window.setFramerateLimit(30);
 
     // create the direction struct with initial moving to the right
     struct direction {
@@ -142,21 +145,21 @@ int Individual::show_game(sf::RenderWindow* window, NN* nn) {
     // input values for neural network
     vector<float> inputs;
 
-    while (window->isOpen() && gameOver == 0) {
+    while (window.isOpen() && gameOver == 0) {
         //check if window is closed
         sf::Event event;
-        while(window->pollEvent(event)) {
+        while(window.pollEvent(event)) {
             // "close requested" event: we close the window
             if (event.type == sf::Event::Closed)
-                window->close();
+                window.close();
         }
 
         // set input for neural network
-        inputs = snake->getInputs();
-        nn->set_input(inputs);
+        inputs = snake.getInputs();
+        nn.set_input(inputs);
 
         // obtain output of neural network
-        outputs = nn->forward_propagation();
+        outputs = nn.forward_propagation();
 
         if (outputs[0] > 0.5 && dir.x == 0) {
             dir.x = -1;
@@ -174,63 +177,40 @@ int Individual::show_game(sf::RenderWindow* window, NN* nn) {
             dir.x = 0;
             dir.y = 1;
         }
-        snake->setDirection(dir.x, dir.y);
+        snake.setDirection(dir.x, dir.y);
 
         // check for collision
-        if (snake->checkCollision() == 1) {
+        if (snake.checkCollision() == 1) {
             gameOver = 1;
         }
         
         // check if the food got eaten, if so set food to new location and grow
         // the snake
-        if (snake->checkFood() == 1) {
-            snake->addElement();
-            snake->setFood();
+        if (snake.checkFood() == 1) {
+            snake.addElement();
+            snake.setFood();
         }
 
         // if a certain time elapsed, move and draw the snake
         if (clock.getElapsedTime().asMilliseconds() >= speed){
-            window->clear();
+            window.clear();
             clock.restart();
-            snake->setDirection(dir.x, dir.y);
-            snake->moveSnake();
-            snake->drawSnake(window, xSize, ySize);
+            snake.setDirection(dir.x, dir.y);
+            snake.moveSnake();
+            // get food location and draw the food
+            sf::RectangleShape drawingShape = snake.getFoodDrawingShape(xSize, ySize);
+            window.draw(drawingShape);
+            // get snake location and draw it
+            vector<sf::RectangleShape> drawingShapes = snake.getSnakeDrawingShapes(xSize, ySize);
+            for (auto i = drawingShapes.begin(); i < drawingShapes.end(); i++) {
+                window.draw(*i);
+            }
         }
 
-        // draw a Matrix
-        drawMatrix(window, xSize, ySize);
-
         // Display all the changes on the screen
-        window->display();
+        window.display();
     }
-    return snake->getLength();
-}
-
-void Individual::drawMatrix(sf::RenderWindow* window, int xSize, int ySize) {
-    // color of matrix lines
-    int grey = 50;
-    sf::Color color(grey, grey, grey);
-
-    // get window size
-    sf::Vector2u wSize = window->getSize();
-
-    // draw matrix
-    for (int i = xSize; i < wSize.x; i += xSize) {
-        sf::Vertex lineV[] =
-        {
-            sf::Vertex(sf::Vector2f(i, 0), color),
-            sf::Vertex(sf::Vector2f(i, wSize.x), color)
-        };
-        window->draw(lineV, 2, sf::Lines);
-    }
-    for (int i = ySize; i < wSize.y; i += ySize) {
-        sf::Vertex lineH[] =
-        {
-            sf::Vertex(sf::Vector2f(0, i), color),
-            sf::Vertex(sf::Vector2f(wSize.y, i),color)
-        };
-        window->draw(lineH, 2, sf::Lines);
-    }
+    return snake.getLength();
 }
 
 // returns weights for hidden layer
@@ -241,4 +221,42 @@ vector<vector<float>> Individual::get_hidden_weights() {
 // returns weights for output layer
 vector<vector<float>> Individual::get_output_weights() {
     return wo;
+}
+
+// get the gene vector of the individual which are all the weights lined up in
+// one vector
+vector<float> Individual::get_gene_vector() {
+    vector<float> gene_vector;
+    // first push the hidden weights
+    for (int i = 0; i < wh.size(); i++) {
+        for (int j = 0; j < wh[i].size(); j++) {
+            gene_vector.push_back(wh[i][j]);
+        }
+    }
+    // now push the output weights
+    for (int i = 0; i < wo.size(); i++) {
+        for (int j = 0; j < wo[i].size(); j++) {
+            gene_vector.push_back(wo[i][j]);
+        }
+    }
+    return gene_vector;
+}
+
+// set the gene vector of the individual which are all the weights lined up in
+// one vector, this vector is then converted into the weight matrices
+void Individual::set_gene_vector(vector<float> gene_vector) {
+    // first extract the output weights
+    for (int i = wo.size() - 1; i >= 0; i--) {
+        for (int j = wo[i].size() - 1; j >= 0; j--) {
+            wo[i][j] = gene_vector[gene_vector.size() - 1];
+            gene_vector.pop_back();
+        }
+    }
+    // now extract the hidden weights
+    for (int i = wh.size() - 1; i >= 0; i--) {
+        for (int j = wh[i].size() - 1; j >= 0; j--) {
+            wh[i][j] = gene_vector[gene_vector.size() - 1];
+            gene_vector.pop_back();
+        }
+    }
 }
