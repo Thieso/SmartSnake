@@ -6,46 +6,43 @@ NN::NN(float nr_inputs, float nr_outputs, float nr_neurons) {
     this->nr_outputs = nr_outputs;
     this->nr_neurons = nr_neurons;
     // initialize all vectors and matrices with the correct sizes
-    wh.assign(nr_neurons, vector<float>(nr_inputs));
-    wo.assign(nr_outputs, vector<float>(nr_neurons));
+    x.resize(nr_inputs);
+    y.resize(nr_outputs);
+    wh.resize(nr_neurons, nr_inputs);
+    wo.resize(nr_outputs, nr_neurons);
 }
 
 // perform a forward propagation in the network
-vector<float> NN::forward_propagation() {
-    y.clear();
-    vector<float> a(nr_neurons);
+VectorXd NN::forward_propagation() {
+    VectorXd a(nr_neurons);
     // compute from input to hidden layer
-    for (int i = 0; i < nr_neurons; ++i) {
-        a[i] = inner_product(wh[i].begin(), wh[i].end(), x.begin(), 0) + bias;
-        a[i] = sigmoid(a[i]);
-    }
+    a = sigmoid(wh * x);
     // compute from hidden layer to output
-    for (int i = 0; i < nr_outputs; ++i) {
-        y.push_back(sigmoid(inner_product(wo[i].begin(), wo[i].end(), a.begin(), 0) + bias));
-    }
+    y = sigmoid(wo * a);
     return y;
 }
 
 // sigmoid function as activation function
-float NN::sigmoid(float x) {
-    double y = 1 / (1 + exp(-x));
+VectorXd NN::sigmoid(VectorXd x) {
+    VectorXd y = x;
+    for (int i = 0; i < x.size(); i++) {
+        y(i) = 1 / (1 + exp(-1 * x(i)));
+    }
     return y;
 }
 
 // set the weights inside the network
-void NN::set_weights(vector<vector<float>> wh, vector<vector<float>> wo) {
+void NN::set_weights(MatrixXd wh, MatrixXd wo) {
     this->wh = wh;
     this->wo = wo;
 }
 
 // set the input for the network
-void NN::set_input(vector<float> input) {
-    x.clear();
-    for (int i = 0; i < input.size(); i++)
-        x.push_back(input[i]);
+void NN::set_input(VectorXd input) {
+    x = input;
 }
 
 // get the output from the network
-vector<float> NN::get_output() {
+VectorXd NN::get_output() {
     return y;
 }

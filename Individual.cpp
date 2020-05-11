@@ -3,21 +3,12 @@
 // constructor using the number of inputs outputs and neurons of the neural
 // network as parameters
 Individual::Individual(int nr_inputs, int nr_outputs, int nr_neurons) {
-    wh.assign(nr_neurons, vector<float>(nr_inputs));
-    wo.assign(nr_outputs, vector<float>(nr_neurons));
-    // randomize the weights
-    default_random_engine generator;
-    uniform_real_distribution<double> distribution(0.0, 1.0);
-    for (int i = 0; i < nr_neurons; ++i) {
-        for (int j = 0; j < nr_inputs; ++j) {
-            wh[i][j] = distribution(generator);
-        }
-    }
-    for (int i = 0; i < nr_outputs; ++i) {
-        for (int j = 0; j < nr_neurons; ++j) {
-            wo[i][j] = distribution(generator);
-        }
-    }
+    wh.resize(nr_neurons, nr_inputs);
+    wo.resize(nr_outputs, nr_neurons);
+    // randomize the weigths
+    wh.setRandom();
+    wo.setRandom();
+    // set initial fitness
     fitness = 1;
 }
 
@@ -44,28 +35,19 @@ int Individual::evaluate_fitness(int nr_inputs, int nr_outputs, int nr_neurons) 
     int gameOver = 0;
 
     // output vales of neural network
-    vector<float> outputs;
+    VectorXd outputs;
 
     // input values for neural network
-    vector<float> inputs;
+    VectorXd inputs;
 
     while (gameOver == 0) {
         // set input for neural network
         inputs = snake.getInputs();
         nn.set_input(inputs);
 
-        //for (vector<float>::const_iterator i = inputs.begin(); i != inputs.end(); ++i)
-            //cout << *i << ' ';
-        //cout << endl;
-
         // obtain output of neural network
         outputs = nn.forward_propagation();
 
-        //for (vector<float>::const_iterator i = outputs.begin(); i != outputs.end(); ++i)
-            //cout << *i << ' ';
-        //cout << endl;
-        //cout << "------" << endl;
-        
         if (outputs[0] > 0.5 && dir.x == 0) {
             dir.x = -1;
             dir.y = 0;
@@ -140,10 +122,10 @@ int Individual::show_game(int nr_inputs, int nr_outputs, int nr_neurons) {
     int gameOver = 0;
 
     // output vales of neural network
-    vector<float> outputs;
+    VectorXd outputs;
 
     // input values for neural network
-    vector<float> inputs;
+    VectorXd inputs;
 
     while (window.isOpen() && gameOver == 0) {
         //check if window is closed
@@ -213,50 +195,32 @@ int Individual::show_game(int nr_inputs, int nr_outputs, int nr_neurons) {
     return snake.getLength();
 }
 
-// returns weights for hidden layer
-vector<vector<float>> Individual::get_hidden_weights() {
-    return wh;
-}
-
-// returns weights for output layer
-vector<vector<float>> Individual::get_output_weights() {
-    return wo;
+// get the gene vector of the individual which are all the weights lined up in
+// one vector (hidden layer)
+VectorXd Individual::get_gene_vector_hidden() {
+    Map<VectorXd> gene_vector(wh.data(), wh.size());
+    return gene_vector;
 }
 
 // get the gene vector of the individual which are all the weights lined up in
-// one vector
-vector<float> Individual::get_gene_vector() {
-    vector<float> gene_vector;
-    // first push the hidden weights
-    for (int i = 0; i < wh.size(); i++) {
-        for (int j = 0; j < wh[i].size(); j++) {
-            gene_vector.push_back(wh[i][j]);
-        }
-    }
-    // now push the output weights
-    for (int i = 0; i < wo.size(); i++) {
-        for (int j = 0; j < wo[i].size(); j++) {
-            gene_vector.push_back(wo[i][j]);
-        }
-    }
+// one vector (output layer)
+VectorXd Individual::get_gene_vector_output() {
+    Map<VectorXd> gene_vector(wo.data(), wo.size());
     return gene_vector;
 }
 
 // set the gene vector of the individual which are all the weights lined up in
-// one vector, this vector is then converted into the weight matrices
-void Individual::set_gene_vector(vector<float> gene_vector) {
-    // first extract the output weights
-    for (int i = wo.size() - 1; i >= 0; i--) {
-        for (int j = wo[i].size() - 1; j >= 0; j--) {
-            wo[i][j] = gene_vector[gene_vector.size() - 1];
-            gene_vector.pop_back();
-        }
-    }
-    // now extract the hidden weights
-    for (int i = wh.size() - 1; i >= 0; i--) {
-        for (int j = wh[i].size() - 1; j >= 0; j--) {
-            wh[i][j] = gene_vector[gene_vector.size() - 1];
-            gene_vector.pop_back();
-        }
-    }
+// one vector, this vector is then converted into the weight matrices (hidden
+// layer)
+void Individual::set_gene_vector_hidden(VectorXd gene_vector) {
+    Map<MatrixXd> wh_tmp(gene_vector.data(), wh.rows(), wh.cols());
+    wh = wh_tmp;
+}
+
+// set the gene vector of the individual which are all the weights lined up in
+// one vector, this vector is then converted into the weight matrices (hidden
+// layer)
+void Individual::set_gene_vector_output(VectorXd gene_vector) {
+    Map<MatrixXd> wo_tmp(gene_vector.data(), wo.rows(), wo.cols());
+    wo = wo_tmp;
 }

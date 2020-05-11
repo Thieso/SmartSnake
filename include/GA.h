@@ -1,4 +1,5 @@
 #pragma once
+#include <eigen3/Eigen/Dense>
 #include <vector>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -7,6 +8,8 @@
 #include "include/Individual.h"
 
 using namespace std; 
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 class GA {
     private: 

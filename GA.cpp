@@ -2,8 +2,8 @@
 
 // constructor for genetic algorithm
 GA::GA() {
-    population_size = 1000;
-    nr_parents = 1000;
+    population_size = 10;
+    nr_parents = 10;
     mutation_rate = 0.1;
     crossover_rate = 0.2;
     nr_inputs = 6;
@@ -25,7 +25,7 @@ GA::~GA() {
 vector<int> GA::evaluate_fitness() {
     current_fitness.clear();
     // iterate over the population and compute their fitness
-    for (int i = 0; i < population.size(); i++) {
+    for (unsigned int i = 0; i < population.size(); i++) {
         current_fitness.push_back(population[i].evaluate_fitness(nr_inputs, nr_outputs, nr_neurons));
     }
     return current_fitness;
@@ -73,7 +73,7 @@ void GA::crossover() {
     // if the randowm number is below the crossover rate, the parent will
     // experience crossover
     float random_number;
-    for (int i = 0; i < parents.size(); i++) {
+    for (unsigned int i = 0; i < parents.size(); i++) {
         // create random number between 0 and 1
         random_number = ((float) (rand() % 100 + 1)) / 100.0;
         if (random_number < crossover_rate) {
@@ -83,28 +83,38 @@ void GA::crossover() {
     }
     // find the point of crossover and perform the crossover with the adjacent
     // parent that is marked for it
-    vector<float> gene_vector1;
-    vector<float> gene_vector2;
+    VectorXd gene_vector_hidden1;
+    VectorXd gene_vector_hidden2;
+    VectorXd gene_vector_output1;
+    VectorXd gene_vector_output2;
     int random_index;
-    for (int i = 0; i < crossover_parents.size(); i++) {
+    for (unsigned int i = 0; i < crossover_parents.size(); i++) {
         // get gene vectors of both parents
-        gene_vector1 = crossover_parents[i].get_gene_vector();
-        if (i < crossover_parents.size() - 1)
-            gene_vector2 = crossover_parents[i + 1].get_gene_vector();
-        else
-            gene_vector2 = crossover_parents[0].get_gene_vector();
-        // create random number between 1 and the size of the gene vector minus 1
-        random_index = rand() % (gene_vector1.size() - 2) + 1;
-        // perform crossover on the gene vectors
-        for (int j = random_index; j < gene_vector1.size(); j++) {
-            gene_vector1[j] = gene_vector2[j];
+        gene_vector_hidden1 = crossover_parents[i].get_gene_vector_hidden();
+        gene_vector_output1 = crossover_parents[i].get_gene_vector_output();
+        if (i < crossover_parents.size() - 1) {
+            gene_vector_hidden2 = crossover_parents[i + 1].get_gene_vector_hidden();
+            gene_vector_output2 = crossover_parents[i + 1].get_gene_vector_output();
+        } else {
+            gene_vector_hidden2 = crossover_parents[0].get_gene_vector_hidden();
+            gene_vector_output2 = crossover_parents[0].get_gene_vector_output();
+        }
+        // create random number between 1 and the size of the gene vectors minus 1
+        random_index = rand() % (gene_vector_hidden1.size() + gene_vector_output1.size() - 2) + 1;
+        // perform crossover on the gene vectors depending on the random index 
+        if (random_index < gene_vector_hidden1.size()) {
+            gene_vector_hidden1.block(random_index, 0, gene_vector_hidden1.size(), 0) = gene_vector_hidden2.block(random_index, 0, gene_vector_hidden2.size(), 0);
+            gene_vector_output1 = gene_vector_output2;
+        } else {
+            gene_vector_output1.block(random_index - gene_vector_hidden1.size(), 0, gene_vector_output1.size(), 0) = gene_vector_hidden2.block(random_index - gene_vector_hidden1.size(), 0, gene_vector_output2.size(), 0);
         }
         // set gene vector for the individual
-        crossover_parents[i].set_gene_vector(gene_vector1);
+        crossover_parents[i].set_gene_vector_hidden(gene_vector_hidden1);
+        crossover_parents[i].set_gene_vector_output(gene_vector_output1);
     }
 
     // insert the crossover parents back into the parents array
-    for (int i = 0; i < crossover_parents.size(); i++) {
+    for (unsigned int i = 0; i < crossover_parents.size(); i++) {
         parents[crossover_idx[i]] = crossover_parents[i];
     }
 }
@@ -112,20 +122,31 @@ void GA::crossover() {
 // apply mutations to the existing population
 void GA::mutation() {
     // iterate over all gene vector and mutate them if necessary
-    vector<float> gene_vector;
+    VectorXd gene_vector_hidden;
+    VectorXd gene_vector_output;
     float random_number;
     for (int i = 0; i < nr_parents; i++) {
-        gene_vector = parents[i].get_gene_vector();
-        for (int j = 0; j < gene_vector.size(); j++) {
+        gene_vector_hidden = parents[i].get_gene_vector_hidden();
+        gene_vector_output = parents[i].get_gene_vector_output();
+        for (int j = 0; j < gene_vector_hidden.size(); j++) {
             // create random number between 0 and 1
             random_number = ((float) (rand() % 100 + 1)) / 100.0;
             // if random number smaller than mutation rate, mutate the gene
             if (random_number < mutation_rate) {
-                gene_vector[j] += (float) (rand() % 5 + 1) / 100.0 - 0.1;
+                gene_vector_hidden[j] += (float) (rand() % 5 + 1) / 100.0 - 0.1;
+            }
+        }
+        for (int j = 0; j < gene_vector_output.size(); j++) {
+            // create random number between 0 and 1
+            random_number = ((float) (rand() % 100 + 1)) / 100.0;
+            // if random number smaller than mutation rate, mutate the gene
+            if (random_number < mutation_rate) {
+                gene_vector_output[j] += (float) (rand() % 5 + 1) / 100.0 - 0.1;
             }
         }
         // set mutated gene vector
-        parents[i].set_gene_vector(gene_vector);
+        parents[i].set_gene_vector_hidden(gene_vector_hidden);
+        parents[i].set_gene_vector_output(gene_vector_output);
     }
 }
 

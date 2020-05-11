@@ -128,17 +128,17 @@ void Snake::setFood() {
 
 // returns the inputs needed to train the neural network, the return vector
 // contains information of the current game state
-vector<float> Snake::getInputs() {
-    vector<float> inputs;
+VectorXd Snake::getInputs() {
+    VectorXd inputs(6);
     // position of the head (normalized)
-    inputs.push_back(elements[0].getPosition().x / x);
-    inputs.push_back(elements[0].getPosition().y / y);
+    inputs(0) = elements[0].getPosition().x / x;
+    inputs(0) = elements[0].getPosition().y / y;
     // position of the food
-    inputs.push_back(food.getPosition().x / x);
-    inputs.push_back(food.getPosition().y / y);
+    inputs(2) = food.getPosition().x / x;
+    inputs(3) = food.getPosition().y / y;
     // direction of movement (normalized)
-    inputs.push_back((xDirection + 1)/2);
-    inputs.push_back((yDirection + 1)/2);
+    inputs(4) = (xDirection + 1)/2;
+    inputs(5) = (yDirection + 1)/2;
 
     return inputs;
 }

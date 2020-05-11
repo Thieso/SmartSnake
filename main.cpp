@@ -16,11 +16,11 @@ int main(){
     for (int i = 0; i < 100; i++) {
         fitness = ga.evaluate_fitness();
         idx = display_fitness(i, fitness);
-        //ga.selection();
-        //ga.crossover();
-        //ga.mutation();
-        //ga.replacement();
-        //ga.show_game(idx);
+        ga.selection();
+        ga.crossover();
+        ga.mutation();
+        ga.replacement();
+        ga.show_game(idx);
     }
 
     return 0;
@@ -31,7 +31,7 @@ int main(){
 int display_fitness(int gen, vector<int> fitness) {
     int best_fitness = 1;
     int idx = 0;
-    for (int i = 0; i < fitness.size(); i++){
+    for (unsigned int i = 0; i < fitness.size(); i++){
         if (fitness[i] > best_fitness) {
             best_fitness = fitness[i];
             idx = i;

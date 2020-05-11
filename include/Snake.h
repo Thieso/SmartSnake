@@ -1,10 +1,13 @@
 #pragma once
+#include <eigen3/Eigen/Dense>
 #include <vector>
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
 using namespace std; 
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 class Snake {
     private: 
@@ -28,6 +31,6 @@ class Snake {
         void setFood();
         vector<sf::RectangleShape> getSnakeDrawingShapes(int, int);
         sf::RectangleShape getFoodDrawingShape(int, int);
-        vector<float> getInputs();
+        VectorXd getInputs();
         void setDirection(int, int);
 };
