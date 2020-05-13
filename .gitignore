@@ -1,5 +1,7 @@
 .project
 main
+testIndividual
+testSnake
 main.o
 *.o
 .ccls*

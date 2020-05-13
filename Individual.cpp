@@ -3,17 +3,28 @@
 // constructor using the number of inputs outputs and neurons of the neural
 // network as parameters
 Individual::Individual(int nr_inputs, int nr_outputs, int nr_neurons) {
-    wh.resize(nr_neurons, nr_inputs);
-    wo.resize(nr_outputs, nr_neurons);
+    this->nr_inputs = nr_inputs;
+    this->nr_outputs = nr_outputs;
+    this->nr_neurons = nr_neurons;
+    wh.resize(nr_neurons, nr_inputs + 1);
+    wo.resize(nr_outputs, nr_neurons + 1);
+    inputs.resize(nr_inputs);
+    outputs.resize(nr_outputs);
     // randomize the weigths
-    wh.setRandom();
-    wo.setRandom();
+    random_device rd;
+    uniform_real_distribution<float> distribution(-1.0, 1.0);
+    for (int i = 0; i < wh.size(); i++) {
+        wh(i) = distribution(rd);
+    }
+    for (int i = 0; i < wo.size(); i++) {
+        wo(i) = distribution(rd);
+    }
     // set initial fitness
     fitness = 1;
 }
 
 // evalute the fitness of the individual by running the snake game (no GUI)
-int Individual::evaluate_fitness(int nr_inputs, int nr_outputs, int nr_neurons) {
+int Individual::evaluate_fitness() {
     // create neural network
     NN nn(nr_inputs, nr_outputs, nr_neurons);
 
@@ -30,40 +41,58 @@ int Individual::evaluate_fitness(int nr_inputs, int nr_outputs, int nr_neurons) 
     }dir;
     dir.x = 1;
     dir.y = 0;
+    snake.setDirection(dir.x, dir.y);
 
     // var for game over
     int gameOver = 0;
 
-    // output vales of neural network
-    VectorXd outputs;
-
-    // input values for neural network
-    VectorXd inputs;
+    // step counter
+    int step = 0;
 
     while (gameOver == 0) {
+        // increase step variable
+        step++;
+
         // set input for neural network
         inputs = snake.getInputs();
         nn.set_input(inputs);
 
         // obtain output of neural network
         outputs = nn.forward_propagation();
+        // find id of maximum output
+        int max_output_id = 0;
+        float max_output = outputs(0);
+        for (int i = 1; i < outputs.size(); i++) {
+            if (outputs(i) > max_output)
+                max_output_id = i;
+        }
 
-        if (outputs[0] > 0.5 && dir.x == 0) {
-            dir.x = -1;
-            dir.y = 0;
+        //set direction of snake depending on the maximum output id
+        if (max_output_id == 0) {
+            if (dir.x == 0) {
+                dir.x = -1;
+                dir.y = 0;
+            }
         }
-        else if (outputs[1] > 0.5 && dir.x == 0) {
-            dir.x = 1;
-            dir.y = 0;
+        else if (max_output_id == 1) {
+            if (dir.x == 0) {
+                dir.x = 1;
+                dir.y = 0;
+            }
         }
-        else if (outputs[2] > 0.5 && dir.y == 0) {
-            dir.x = 0;
-            dir.y = -1;
+        else if (max_output_id == 2) {
+            if (dir.y == 0) {
+                dir.x = 0;
+                dir.y = -1;
+            }
         }
-        else if (outputs[3] > 0.5 && dir.y == 0) {
-            dir.x = 0;
-            dir.y = 1;
-        }
+        else if (max_output_id == 3) {
+            if (dir.y == 0) {
+                dir.x = 0;
+                dir.y = 1;
+            }
+        } 
+        snake.setDirection(dir.x, dir.y);
 
         // check for collision
         if (snake.checkCollision() == 1) {
@@ -78,13 +107,13 @@ int Individual::evaluate_fitness(int nr_inputs, int nr_outputs, int nr_neurons) 
         }
 
         // move the snake
-        snake.setDirection(dir.x, dir.y);
         snake.moveSnake();
     }
-    return snake.getLength();
+    // return length of snake plus steps of the snake
+    return snake.getLength()*10 + step;
 }
 
-int Individual::show_game(int nr_inputs, int nr_outputs, int nr_neurons) {
+int Individual::show_game() {
     // create neural network
     NN nn(nr_inputs, nr_outputs, nr_neurons);
 
@@ -112,7 +141,7 @@ int Individual::show_game(int nr_inputs, int nr_outputs, int nr_neurons) {
     dir.x = 1;
     dir.y = 0;
 
-    // set speed
+// set speed
     int speed = 50;
 
     // create clock
@@ -120,12 +149,6 @@ int Individual::show_game(int nr_inputs, int nr_outputs, int nr_neurons) {
 
     // var for game over
     int gameOver = 0;
-
-    // output vales of neural network
-    VectorXd outputs;
-
-    // input values for neural network
-    VectorXd inputs;
 
     while (window.isOpen() && gameOver == 0) {
         //check if window is closed
@@ -136,62 +159,82 @@ int Individual::show_game(int nr_inputs, int nr_outputs, int nr_neurons) {
                 window.close();
         }
 
-        // set input for neural network
-        inputs = snake.getInputs();
-        nn.set_input(inputs);
-
-        // obtain output of neural network
-        outputs = nn.forward_propagation();
-
-        if (outputs[0] > 0.5 && dir.x == 0) {
-            dir.x = -1;
-            dir.y = 0;
-        }
-        else if (outputs[1] > 0.5 && dir.x == 0) {
-            dir.x = 1;
-            dir.y = 0;
-        }
-        else if (outputs[2] > 0.5 && dir.y == 0) {
-            dir.x = 0;
-            dir.y = -1;
-        }
-        else if (outputs[3] > 0.5 && dir.y == 0) {
-            dir.x = 0;
-            dir.y = 1;
-        }
-        snake.setDirection(dir.x, dir.y);
-
-        // check for collision
-        if (snake.checkCollision() == 1) {
-            gameOver = 1;
-        }
-        
-        // check if the food got eaten, if so set food to new location and grow
-        // the snake
-        if (snake.checkFood() == 1) {
-            snake.addElement();
-            snake.setFood();
-        }
-
-        // if a certain time elapsed, move and draw the snake
+        // only draw the snake when a certain time has elapsed
         if (clock.getElapsedTime().asMilliseconds() >= speed){
-            window.clear();
+            // restart the clock
             clock.restart();
+            // set input for neural network
+            inputs = snake.getInputs();
+            nn.set_input(inputs);
+
+            // obtain output of neural network
+            outputs = nn.forward_propagation();
+            // find id of maximum output
+            int max_output_id = 0;
+            float max_output = outputs(0);
+            for (int i = 1; i < outputs.size(); i++) {
+                if (outputs(i) > max_output)
+                    max_output_id = i;
+            }
+
+            //set direction of snake depending on the maximum output id
+            if (max_output_id == 0) {
+                if (dir.x == 0) {
+                    dir.x = -1;
+                    dir.y = 0;
+                }
+            }
+            else if (max_output_id == 1) {
+                if (dir.x == 0) {
+                    dir.x = 1;
+                    dir.y = 0;
+                }
+            }
+            else if (max_output_id == 2) {
+                if (dir.y == 0) {
+                    dir.x = 0;
+                    dir.y = -1;
+                }
+            }
+            else if (max_output_id == 3) {
+                if (dir.y == 0) {
+                    dir.x = 0;
+                    dir.y = 1;
+                }
+            } 
             snake.setDirection(dir.x, dir.y);
+
+            // check for collision
+            if (snake.checkCollision() == 1) {
+                gameOver = 1;
+            }
+
+            // check if the food got eaten, if so set food to new location and grow
+            // the snake
+            if (snake.checkFood() == 1) {
+                snake.addElement();
+                snake.setFood();
+            }
+
+            // move and draw the snake
+            window.clear();
             snake.moveSnake();
             // get food location and draw the food
             sf::RectangleShape drawingShape = snake.getFoodDrawingShape(xSize, ySize);
             window.draw(drawingShape);
             // get snake location and draw it
-            vector<sf::RectangleShape> drawingShapes = snake.getSnakeDrawingShapes(xSize, ySize);
-            for (auto i = drawingShapes.begin(); i < drawingShapes.end(); i++) {
-                window.draw(*i);
+            for (int i = 0; i < snake.getLength(); i++) {
+                drawingShape = snake.getSnakeDrawingShape(xSize, ySize, i);
+                window.draw(drawingShape);
             }
         }
 
         // Display all the changes on the screen
         window.display();
     }
+    // close window
+    window.close();
+    // return length of snake
     return snake.getLength();
 }
 

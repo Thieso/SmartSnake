@@ -29,7 +29,7 @@ class Snake {
         int checkCollision(); 
         int checkFood();
         void setFood();
-        vector<sf::RectangleShape> getSnakeDrawingShapes(int, int);
+        sf::RectangleShape getSnakeDrawingShape(int, int, int);
         sf::RectangleShape getFoodDrawingShape(int, int);
         VectorXd getInputs();
         void setDirection(int, int);

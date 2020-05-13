@@ -5,8 +5,6 @@
 
 using namespace std;
 
-void drawMatrix(sf::RenderWindow*, int, int);
-
 struct direction {
     int x;
     int y;
@@ -14,14 +12,14 @@ struct direction {
 
 int main() {
     // define window 
-    sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(500, 500), "Snake");
+    sf::RenderWindow window(sf::VideoMode(500, 500), "Snake");
 
     // set size of the rectangles
     int xSize = 20;
     int ySize = 20;
 
     // create a new Snake object
-    Snake* snake = new Snake();
+    Snake snake;
 
     // create the direction struct with initial moving to the right
     struct direction dir;
@@ -29,7 +27,7 @@ int main() {
     dir.y = 0;
 
     // set framerate
-    window->setFramerateLimit(30);
+    window.setFramerateLimit(30);
 
     // set speed
     int speed = 50;
@@ -41,12 +39,12 @@ int main() {
     int gameOver = 0;
 
     // run program as long as the window is open
-    while (window->isOpen() && gameOver == 0) {
+    while (window.isOpen() && gameOver == 0) {
         sf::Event event;
-        while(window->pollEvent(event)) {
+        while(window.pollEvent(event)) {
             // "close requested" event: we close the window
             if (event.type == sf::Event::Closed)
-                window->close();
+                window.close();
         }
 
         // get keyboard input
@@ -68,62 +66,35 @@ int main() {
         }
 
         // check for collision
-        if (snake->checkCollision() == 1) {
+        if (snake.checkCollision() == 1) {
             gameOver = 1;
         }
         
         // check if the food got eaten, if so set food to new location and grow
         // the snake
-        if (snake->checkFood() == 1) {
-            snake->addElement();
-            snake->setFood();
+        if (snake.checkFood() == 1) {
+            snake.addElement();
+            snake.setFood();
         }
 
         // if a certain time elapsed, move and draw the snake
         if (clock.getElapsedTime().asMilliseconds() >= speed){
-            window->clear();
+            window.clear();
             clock.restart();
-            snake->setDirection(dir.x, dir. y);
-            snake->moveSnake();
-            snake->drawSnake(window, xSize, ySize);
+            snake.setDirection(dir.x, dir.y);
+            snake.moveSnake();
+            // get food location and draw the food
+            sf::RectangleShape drawingShape = snake.getFoodDrawingShape(xSize, ySize);
+            window.draw(drawingShape);
+            // get snake location and draw it
+            for (int i = 0; i < snake.getLength(); i++) {
+                drawingShape = snake.getSnakeDrawingShape(xSize, ySize, i);
+                window.draw(drawingShape);
+            }
         }
 
-        // draw a Matrix
-        drawMatrix(window, xSize, ySize);
-
         // Display all the changes on the screen
-        window->display();
+        window.display();
     }
-
-
-    free(window);
-    free(snake);
     return 0;
-}
-
-void drawMatrix(sf::RenderWindow* window, int xSize, int ySize) {
-    // color of matrix lines
-    int grey = 50;
-    sf::Color color(grey, grey, grey);
-
-    // get window size
-    sf::Vector2u wSize = window->getSize();
-
-    // draw matrix
-    for (int i = xSize; i < wSize.x; i += xSize) {
-        sf::Vertex lineV[] =
-        {
-            sf::Vertex(sf::Vector2f(i, 0), color),
-            sf::Vertex(sf::Vector2f(i, wSize.x), color)
-        };
-        window->draw(lineV, 2, sf::Lines);
-    }
-    for (int i = ySize; i < wSize.y; i += ySize) {
-        sf::Vertex lineH[] =
-        {
-            sf::Vertex(sf::Vector2f(0, i), color),
-            sf::Vertex(sf::Vector2f(wSize.y, i),color)
-        };
-        window->draw(lineH, 2, sf::Lines);
-    }
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <eigen3/Eigen/Dense>
 #include <vector>
+#include <iostream>
 #include <math.h>
 #include <numeric>
 

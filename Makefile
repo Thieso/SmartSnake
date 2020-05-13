@@ -17,16 +17,15 @@ testSnake: $(OBJECTS)
 	$(CC) testSnake.cpp $(LDFLAGS) Snake.o -o testSnake $(LIBFLAGS)
 
 testIndividual: $(OBJECTS)
-	$(CC) testIndividual.cpp $(LDFLAGS) Individual.o -o testIndividual $(LIBFLAGS)
+	$(CC) testIndividual.cpp $(CFLAGS) -o testIndividual.o $(LIBFLAGS)
+	$(CC) $(LDFLAGS) testIndividual.o Individual.o Snake.o NN.o  -o testIndividual $(LIBFLAGS)
+
+testNN: $(OBJECTS)
+	$(CC) testNN.cpp $(CFLAGS) -o testNN.o $(LIBFLAGS)
+	$(CC) $(LDFLAGS) testNN.o NN.o -o testNN $(LIBFLAGS)
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@ $(LIBFLAGS)
 
 clean:
-	rm *.o $(EXECUTABLE)
-
-install:
-	#install -s $(EXECUTABLE) $(BINDIR)
-	sudo cp -u $(EXECUTABLE) $(BINDIR)
-uninstall:
-	sudo rm $(BINDIR)/$(EXECUTABLE)
+	rm *.o $(EXECUTABLE) testSnake testIndividual testNN

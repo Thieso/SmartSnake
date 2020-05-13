@@ -3,6 +3,8 @@
 // constructor
 Snake::Snake() {
     // initialize parameters
+    xDirection = 1;
+    yDirection = 0;
     length = 1;
     elements.resize(length);
     // set initial position in the middle of the field
@@ -40,7 +42,7 @@ void Snake::moveSnake(){
 int Snake::checkCollision() {
     // compare the position of the head with the position of each element and if
     // the coincide there is a collision
-    for (int i = 1; i < length; i++){
+    for (unsigned int i = 1; i < length; i++){
         if (elements[0].getPosition() == elements[i].getPosition()){
             return 1;
         }
@@ -48,32 +50,28 @@ int Snake::checkCollision() {
 
     // check for collision of the head with the wall
     sf::Vector2f headPos = elements[0].getPosition();
-    if (headPos.x > x || headPos.x < 0 || headPos.y > y || headPos.y < 0){
+    if (headPos.x > x-1 || headPos.x < 0 || headPos.y > y-1 || headPos.y < 0){
         return 1;
     }
     return 0;
 }
 
-// return vector of drawing shapes for the snake body
-vector<sf::RectangleShape> Snake::getSnakeDrawingShapes(int xSize, int ySize) {
+// return drawing shape for the snake body element with given idx
+sf::RectangleShape Snake::getSnakeDrawingShape(int xSize, int ySize, int idx) {
     sf::Vector2f pos;
     sf::RectangleShape drawingShape;
-    vector<sf::RectangleShape> drawingShapes;
-    // set size and color of elements and draw it
-    for (int i = 0; i < length; i++){
-        // position
-        pos = elements[i].getPosition();
-        drawingShape.setPosition(sf::Vector2f(pos.x * xSize, pos.y * ySize));
-        drawingShape.setSize(sf::Vector2f(xSize, ySize));
-        // color (color of head is different from the rest)
-        if (i > 0){
-            drawingShape.setFillColor(sf::Color(0, 255, 0));
-        } else {
-            drawingShape.setFillColor(sf::Color(0, 0, 255));
-        }
-        drawingShapes.push_back(drawingShape);
+    // set size and color of element
+    // position
+    pos = elements[idx].getPosition();
+    drawingShape.setPosition(sf::Vector2f(pos.x * xSize, pos.y * ySize));
+    drawingShape.setSize(sf::Vector2f(xSize, ySize));
+    // color (color of head is different from the rest)
+    if (idx > 0){
+        drawingShape.setFillColor(sf::Color(0, 255, 0));
+    } else {
+        drawingShape.setFillColor(sf::Color(0, 0, 255));
     }
-    return drawingShapes;
+    return drawingShape;
 }
 
 // return drawable shape of the food
@@ -118,7 +116,7 @@ void Snake::setFood() {
         food.setPosition(sf::Vector2f(randX, randY));
         // check if the position is on the snake body
         badPosition = false;
-        for (int i = 0; i < length; i++){
+        for (unsigned int i = 0; i < length; i++){
             if (food.getPosition() == elements[i].getPosition()){
                 badPosition = true;
             }
@@ -132,13 +130,13 @@ VectorXd Snake::getInputs() {
     VectorXd inputs(6);
     // position of the head (normalized)
     inputs(0) = elements[0].getPosition().x / x;
-    inputs(0) = elements[0].getPosition().y / y;
+    inputs(1) = elements[0].getPosition().y / y;
     // position of the food
     inputs(2) = food.getPosition().x / x;
     inputs(3) = food.getPosition().y / y;
     // direction of movement (normalized)
-    inputs(4) = (xDirection + 1)/2;
-    inputs(5) = (yDirection + 1)/2;
+    inputs(4) = ((float) (xDirection + 1))/2;
+    inputs(5) = ((float) (yDirection + 1))/2;
 
     return inputs;
 }
