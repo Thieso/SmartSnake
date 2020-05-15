@@ -104,15 +104,17 @@ int Snake::checkFood() {
 
 void Snake::setFood() {
     // initialize random number generator
-    srand(time(NULL));
+    random_device rd;
+    uniform_int_distribution<int> distributionX(0, x - 1);
+    uniform_int_distribution<int> distributionY(0, y - 1);
     int randX, randY;
 
     // set position such that the food is never on the body of the snake
     bool badPosition = true;
     while (badPosition) {
         // set position randomly
-        randX = rand() % (this->x);
-        randY = rand() % (this->y);
+        randX = distributionX(rd);
+        randY = distributionY(rd);
         food.setPosition(sf::Vector2f(randX, randY));
         // check if the position is on the snake body
         badPosition = false;
@@ -129,11 +131,12 @@ void Snake::setFood() {
 VectorXd Snake::getInputs() {
     VectorXd inputs(6);
     // position of the head (normalized)
-    inputs(0) = elements[0].getPosition().x / x;
-    inputs(1) = elements[0].getPosition().y / y;
-    // position of the food
-    inputs(2) = food.getPosition().x / x;
-    inputs(3) = food.getPosition().y / y;
+    sf::Vector2f headPosition = elements[0].getPosition();
+    inputs(0) = headPosition.x / x;
+    inputs(1) = headPosition.y / y;
+    // position of the food relative to position of the head
+    inputs(2) = (food.getPosition().x - headPosition.x) / x;
+    inputs(3) = (food.getPosition().y - headPosition.y) / y;
     // direction of movement (normalized)
     inputs(4) = ((float) (xDirection + 1))/2;
     inputs(5) = ((float) (yDirection + 1))/2;
