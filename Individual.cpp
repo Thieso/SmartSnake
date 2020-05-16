@@ -27,16 +27,20 @@ Individual::Individual(int nr_inputs, int nr_outputs, int nr_neurons_1, int nr_n
     // set initial fitness
     fitness = 1;
     // set maximum number of steps
-    maxSteps = 1000;
+    maxSteps = 2000;
+}
+
+// destructor
+Individual::~Individual() {
 }
 
 // evalute the fitness of the individual by running the snake game (no GUI)
-int Individual::evaluate_fitness(NN* nn) {
+int Individual::evaluate_fitness(NN* nn, Snake* snake) {
+    // reset the snake
+    snake->reset();
+
     // set weights for neural network
     nn->set_weights(wh_1, wh_2, wo);
-
-    // create a new Snake object
-    Snake snake;
 
     // create the direction struct with initial moving to the right
     struct direction {
@@ -45,7 +49,7 @@ int Individual::evaluate_fitness(NN* nn) {
     }dir;
     dir.x = -1;
     dir.y = 0;
-    snake.setDirection(dir.x, dir.y);
+    snake->setDirection(dir.x, dir.y);
 
     // var for game over
     int gameOver = 0;
@@ -53,19 +57,30 @@ int Individual::evaluate_fitness(NN* nn) {
     // step counter
     int step = 0;
 
+    // score 
+    int score = 0;
+
+    // maximum output value and its ID
+    int max_output_id;
+    float max_output;
+
+    // variables to keep track of directions
+    direction prev_dir = dir;
+    int count_same_dir = 0;
+
     while (gameOver == 0) {
         // increase step variable
         step++;
 
         // set input for neural network
-        inputs = snake.getInputs();
+        inputs = snake->getInputs();
         nn->set_input(inputs);
 
         // obtain output of neural network
         outputs = nn->forward_propagation();
         // find id of maximum output
-        int max_output_id = 0;
-        float max_output = outputs(0);
+        max_output_id = 0;
+        max_output = outputs(0);
         for (int i = 1; i < outputs.size(); i++) {
             if (outputs(i) > max_output)
                 max_output_id = i;
@@ -98,11 +113,27 @@ int Individual::evaluate_fitness(NN* nn) {
             // stay on the same path 
             // so do nothing to the direction
         } 
-        snake.setDirection(dir.x, dir.y);
+        snake->setDirection(dir.x, dir.y);
+
+        // check wheter direction changed and decrease score if needed
+        if (prev_dir.x == dir.x && prev_dir.y == dir.y) {
+            count_same_dir += 1;
+        } else {
+            count_same_dir = 0;
+            prev_dir = dir;
+        }
+
+        // increase score for longer runtime but not if the same step is
+        // repeated too often
+        if (count_same_dir > 8)
+            score -= 1;
+        else
+            score += 2;
 
         // check for collision
-        if (snake.checkCollision() == 1) {
+        if (snake->checkCollision(snake->getHead()) == 1) {
             gameOver = 1;
+            score -= 150;
         }
 
         // check for maximum number of steps
@@ -113,31 +144,30 @@ int Individual::evaluate_fitness(NN* nn) {
         
         // check if the food got eaten, if so set food to new location and grow
         // the snake
-        if (snake.checkFood() == 1) {
-            snake.addElement();
-            snake.setFood();
+        if (snake->checkFood() == 1) {
+            snake->addElement();
+            snake->setFood();
         }
 
         // move the snake
-        snake.moveSnake();
+        snake->moveSnake();
     }
-    // return length of snake plus steps of the snake
-    return snake.getLength()*1000 + step;
+    // compute score
+    score += (snake->getLength() - 1) * 5000;
+    // return score
+    return score;
 }
 
-void Individual::show_game(sf::RenderWindow* window, NN* nn) {
+void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake) {
+    // reset snake
+    snake->reset();
+
     // set weights for neural network
     nn->set_weights(wh_1, wh_2, wo);
 
     // set size of the rectangles
     int xSize = 20;
     int ySize = 20;
-
-    // create a new Snake object
-    Snake snake;
-
-    // set framerate
-    window->setFramerateLimit(30);
 
     // create the direction struct with initial moving to the right
     struct direction {
@@ -162,7 +192,7 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn) {
             // restart the clock
             clock.restart();
             // set input for neural network
-            inputs = snake.getInputs();
+            inputs = snake->getInputs();
             nn->set_input(inputs);
 
             // obtain output of neural network
@@ -202,29 +232,29 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn) {
                 // stay on the same path 
                 // so do nothing to the direction
             } 
-            snake.setDirection(dir.x, dir.y);
+            snake->setDirection(dir.x, dir.y);
 
             // check for collision
-            if (snake.checkCollision() == 1) {
+            if (snake->checkCollision(snake->getHead()) == 1) {
                 gameOver = 1;
             }
 
             // check if the food got eaten, if so set food to new location and grow
             // the snake
-            if (snake.checkFood() == 1) {
-                snake.addElement();
-                snake.setFood();
+            if (snake->checkFood() == 1) {
+                snake->addElement();
+                snake->setFood();
             }
 
             // move and draw the snake
             window->clear();
-            snake.moveSnake();
+            snake->moveSnake();
             // get food location and draw the food
-            sf::RectangleShape drawingShape = snake.getFoodDrawingShape(xSize, ySize);
+            sf::RectangleShape drawingShape = snake->getFoodDrawingShape(xSize, ySize);
             window->draw(drawingShape);
             // get snake location and draw it
-            for (unsigned int i = 0; i < snake.getLength(); i++) {
-                drawingShape = snake.getSnakeDrawingShape(xSize, ySize, i);
+            for (unsigned int i = 0; i < snake->getLength(); i++) {
+                drawingShape = snake->getSnakeDrawingShape(xSize, ySize, i);
                 window->draw(drawingShape);
             }
         }

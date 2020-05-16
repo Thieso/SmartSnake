@@ -15,19 +15,20 @@ class Snake {
         vector<sf::RectangleShape> elements; // elements of the snake
         sf::RectangleShape food;             // food for the snake
         unsigned int length;                 // length of the snake
-        unsigned const int x = 25;           // size of field in x
-        unsigned const int y = 25;           // size of field in y
+        unsigned const int x = 40;           // size of field in x
+        unsigned const int y = 40;           // size of field in y
         int xDirection;                      // direction of movement in x
         int yDirection;                      // direction of movement in y
 
     public: 
         Snake(); 
         ~Snake(); 
+        void reset(); 
         unsigned int getLength(); 
         sf::Vector2f getHead(); 
         void addElement(); 
         void moveSnake(); 
-        int checkCollision(); 
+        int checkCollision(sf::Vector2f); 
         int checkFood();
         void setFood();
         sf::RectangleShape getSnakeDrawingShape(int, int, int);

@@ -8,7 +8,19 @@ Snake::Snake() {
     length = 1;
     elements.resize(length);
     // set initial position in the middle of the field
-    elements[0].setPosition(sf::Vector2f(12, 12));
+    elements[0].setPosition(sf::Vector2f(int(x / 2), int(y / 2)));
+    // set inital position of the food
+    this->setFood();
+}
+
+void Snake::reset() {
+    // reinitialize parameters
+    xDirection = 1;
+    yDirection = 0;
+    length = 1;
+    elements.resize(length);
+    // set initial position in the middle of the field
+    elements[0].setPosition(sf::Vector2f(int(x / 2), int(y / 2)));
     // set inital position of the food
     this->setFood();
 }
@@ -37,20 +49,20 @@ void Snake::moveSnake(){
     elements[0].move(xDirection, yDirection);
 }
 
-// check for collisions in the snake itself or with the wall
+// check for collisions in the snake itself or with the wall of the given
+// position on the grid
 // return 1 if a collision is there, otherwise return zero
-int Snake::checkCollision() {
+int Snake::checkCollision(sf::Vector2f pos) {
     // compare the position of the head with the position of each element and if
     // the coincide there is a collision
     for (unsigned int i = 1; i < length; i++){
-        if (elements[0].getPosition() == elements[i].getPosition()){
+        if (pos == elements[i].getPosition()){
             return 1;
         }
     }
 
     // check for collision of the head with the wall
-    sf::Vector2f headPos = elements[0].getPosition();
-    if (headPos.x > x-1 || headPos.x < 0 || headPos.y > y-1 || headPos.y < 0){
+    if (pos.x > x - 1 || pos.x < 0 || pos.y > y - 1 || pos.y < 0){
         return 1;
     }
     return 0;
@@ -129,17 +141,40 @@ void Snake::setFood() {
 // returns the inputs needed to train the neural network, the return vector
 // contains information of the current game state
 VectorXd Snake::getInputs() {
-    VectorXd inputs(6);
-    // position of the head (normalized)
-    sf::Vector2f headPosition = elements[0].getPosition();
-    inputs(0) = headPosition.x / x;
-    inputs(1) = headPosition.y / y;
-    // position of the food relative to position of the head
-    inputs(2) = (food.getPosition().x - headPosition.x) / x;
-    inputs(3) = (food.getPosition().y - headPosition.y) / y;
+    // check which directions the snake can go from its current position and
+    // which are blocked
+    int front_blocked, left_blocked, right_blocked; 
+    sf::Vector2f headPos = this->getHead();
+    sf::Vector2f headPos_straight, headPos_left, headPos_right;
+    headPos_straight = headPos + sf::Vector2f(xDirection, yDirection);
+    if (xDirection != 0) {
+        headPos_left = headPos + sf::Vector2f(0, -xDirection);
+        headPos_right = headPos + sf::Vector2f(0, xDirection);
+    } else if (yDirection != 0) {
+        headPos_left = headPos + sf::Vector2f(yDirection, 0);
+        headPos_right = headPos + sf::Vector2f(-yDirection, 0);
+    }
+    front_blocked = this->checkCollision(headPos_straight);
+    left_blocked = this->checkCollision(headPos_left);
+    right_blocked = this->checkCollision(headPos_right);
+
+    // relative position of food to snake head
+    sf::Vector2f foodPos = food.getPosition();
+    sf::Vector2f relPos = foodPos - headPos;
+    float normFactor = sqrt(relPos.x * relPos.x + relPos.y * relPos.y);
+
+    // set input vector
+    VectorXd inputs(7);
+    // blocking information
+    inputs(0) = front_blocked;
+    inputs(1) = left_blocked;
+    inputs(2) = right_blocked;
+    // position of the food relative to position of the head (normalized)
+    inputs(3) = relPos.x / normFactor;
+    inputs(4) = relPos.y / normFactor;
     // direction of movement (normalized)
-    inputs(4) = ((float) (xDirection + 1))/2;
-    inputs(5) = ((float) (yDirection + 1))/2;
+    inputs(5) = xDirection;
+    inputs(6) = yDirection;
 
     return inputs;
 }

@@ -28,10 +28,11 @@ class Individual {
         MatrixXd wo;      // matrix of weights for output layer
     public:
         Individual(int, int, int, int);
+        ~Individual();
         Individual(Individual&&);
         Individual(const Individual&);
-        int evaluate_fitness(NN*);
-        void show_game(sf::RenderWindow*, NN*);
+        int evaluate_fitness(NN*, Snake*);
+        void show_game(sf::RenderWindow*, NN*, Snake*);
         VectorXd get_gene_vector();
         void set_gene_vector(VectorXd);
         Individual& operator=(Individual&&);

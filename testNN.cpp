@@ -12,7 +12,7 @@ void display_vector(VectorXd v);
 
 int main(){
     // parameters for neural network
-    int nr_inputs = 6;
+    int nr_inputs = 7;
     int nr_outputs = 3;
     int nr_neurons_1 = 7;
     int nr_neurons_2 = 7;
