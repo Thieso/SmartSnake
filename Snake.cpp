@@ -39,7 +39,7 @@ void Snake::addElement(){
     length += 1;
 }
 
-// move the snake in direction x and y
+// move the snake
 void Snake::moveSnake(){
     // move everything but the head
     for (int i = length; i > 0; i--){

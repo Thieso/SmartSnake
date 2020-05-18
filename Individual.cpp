@@ -153,7 +153,7 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
         snake->moveSnake();
     }
     // compute score
-    score += (snake->getLength() - 1) * 3000;
+    score += (snake->getLength() - 1) * 5000;
     // return score
     return score;
 }

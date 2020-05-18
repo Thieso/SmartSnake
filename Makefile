@@ -3,12 +3,12 @@ LDFLAGS=-g
 LIBFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 SOURCES=main.cpp Snake.cpp NN.cpp Individual.cpp GA.cpp Logger.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=main
+EXECUTABLE=main_computations
 INC_DIR=./include
 CFLAGS=-c -std=c++11 -g -I$(INC_DIR)/..
 BINDIR=/usr/bin
 
-all: $(SOURCES) $(EXECUTABLE)
+all: $(SOURCES) $(EXECUTABLE) testSnake testIndividual testNN play_individual
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBFLAGS)
@@ -32,4 +32,4 @@ play_individual: $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@ $(LIBFLAGS)
 
 clean:
-	rm *.o $(EXECUTABLE) testSnake testIndividual testNN
+	rm *.o $(EXECUTABLE) testSnake testIndividual testNN play_individual

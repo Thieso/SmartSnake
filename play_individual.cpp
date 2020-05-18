@@ -30,25 +30,26 @@ int main(){
     window->setFramerateLimit(30);
 
     // Individual object
-    Individual ind(nr_inputs, nr_outputs, nr_neurons_1, nr_neurons_2);
+    Individual* ind = new Individual(nr_inputs, nr_outputs, nr_neurons_1, nr_neurons_2);
 
     // compute size of gene vector
-    VectorXd gene_vector = ind.get_gene_vector();
+    VectorXd gene_vector = ind->get_gene_vector();
     int nr_genes = gene_vector.size();
 
     // main loop for evaluation
     for (int i = 0; i < nr_generations; i+=100) {
         // get an individual
-        ind.set_gene_vector(logger.read_individual(i, nr_genes));
+        ind->set_gene_vector(logger.read_individual(i, nr_genes));
 
         // show game of the snake
-        ind.show_game(window, nn, snake);
+        ind->show_game(window, nn, snake);
     }
 
     // close the window
     window->close();
 
     // delete the pointers
+    delete ind;
     delete window;
     delete nn;
     delete snake;

@@ -66,7 +66,7 @@ int main() {
         }
 
         // check for collision
-        if (snake.checkCollision() == 1) {
+        if (snake.checkCollision(snake.getHead()) == 1) {
             gameOver = 1;
         }
         
