@@ -5,7 +5,15 @@
 #include "include/GA.h"
 #include "include/Logger.h"
 
-int main(){
+int main(int argc, char* argv[]){
+    if (argc < 2) {
+        cout << "Usage: " << argv[0] << " <generation number of individual to show>" << endl;
+        return 1;
+    }
+
+    // get generation number from command line arguments
+    int generation_number = stoi(argv[1]);
+
     // set parameters for the optimization
     int nr_inputs        = 7;    // number of inputs of neural network
     int nr_outputs       = 3;    // number of outputs of neural network
@@ -36,17 +44,20 @@ int main(){
     VectorXd gene_vector = ind->get_gene_vector();
     int nr_genes = gene_vector.size();
 
-    // main loop for evaluation
-    for (int i = 0; i < nr_generations; i+=100) {
-        // get an individual
-        ind->set_gene_vector(logger.read_individual(i, nr_genes));
+    // set gene vector
+    ind->set_gene_vector(logger.read_individual(generation_number, nr_genes));
 
-        // show game of the snake
-        ind->show_game(window, nn, snake);
+    // show game of the snake
+    ind->show_game(window, nn, snake);
+
+    sf::Event event;
+    while(window->isOpen()) {
+        while (window->pollEvent(event)) {
+            // "close requested" event: we close the window
+            if (event.type == sf::Event::Closed)
+                window->close();
+        }
     }
-
-    // close the window
-    window->close();
 
     // delete the pointers
     delete ind;

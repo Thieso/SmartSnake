@@ -42,14 +42,20 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
     // set weights for neural network
     nn->set_weights(wh_1, wh_2, wo);
 
-    // create the direction struct with initial moving to the right
-    struct direction {
-        int x;
-        int y;
-    }dir;
-    dir.x = -1;
-    dir.y = 0;
-    snake->setDirection(dir.x, dir.y);
+    // create the initial direction randomly
+    random_device rd;
+    uniform_int_distribution<int> distribution(1, 4);
+    int int_dir = distribution(rd);
+    Vector2d dir;
+    if (int_dir == 1)
+        dir << 1, 0;
+    else if (int_dir == 2)
+        dir << -1, 0;
+    else if (int_dir == 3)
+        dir << 0, 1;
+    else if (int_dir == 4)
+        dir << 0, -1;
+    snake->setDirection(dir);
 
     // var for game over
     int gameOver = 0;
@@ -65,7 +71,7 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
     float max_output;
 
     // variables to keep track of directions
-    direction prev_dir = dir;
+    Vector2d prev_dir(dir);
     int count_same_dir = 0;
 
     while (gameOver == 0) {
@@ -89,34 +95,34 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
         //set direction of snake depending on the maximum output id
         if (max_output_id == 0) {
             // turn left
-            if (dir.x != 0) {
-                dir.y = dir.x;
-                dir.x = 0;
+            if (dir(0) != 0) {
+                dir(1) = dir(0);
+                dir(0) = 0;
             }
-            else if (dir.y != 0) {
-                dir.x = dir.y;
-                dir.y = 0;
+            else if (dir(1) != 0) {
+                dir(0) = dir(1);
+                dir(1) = 0;
             }
         }
         else if (max_output_id == 1) {
             // turn right
-            if (dir.x != 0) {
-                dir.y = -dir.x;
-                dir.x = 0;
+            if (dir(0) != 0) {
+                dir(1) = -dir(0);
+                dir(0) = 0;
             }
-            else if (dir.y != 0) {
-                dir.x = -dir.y;
-                dir.y = 0;
+            else if (dir(1) != 0) {
+                dir(0) = -dir(1);
+                dir(1) = 0;
             }
         }
         else if (max_output_id == 2) {
-            // stay on the same path 
+            // sticks on the same path 
             // so do nothing to the direction
         } 
-        snake->setDirection(dir.x, dir.y);
+        snake->setDirection(dir);
 
         // check wheter direction changed and decrease score if needed
-        if (prev_dir.x == dir.x && prev_dir.y == dir.y) {
+        if (prev_dir(0) == dir(0) && prev_dir(1) == dir(1)) {
             count_same_dir += 1;
         } else {
             count_same_dir = 0;
@@ -170,12 +176,18 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake) {
     int ySize = 20;
 
     // create the direction struct with initial moving to the right
-    struct direction {
-        int x;
-        int y;
-    }dir;
-    dir.x = -1;
-    dir.y = 0;
+    random_device rd;
+    uniform_int_distribution<int> distribution(1, 4);
+    int int_dir = distribution(rd);
+    Vector2d dir;
+    if (int_dir == 1)
+        dir << 1, 0;
+    else if (int_dir == 2)
+        dir << -1, 0;
+    else if (int_dir == 3)
+        dir << 0, 1;
+    else if (int_dir == 4)
+        dir << 0, -1;
 
 // set speed
     int speed = 50;
@@ -205,34 +217,34 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake) {
                     max_output_id = i;
             }
 
-            //set direction of snake depending on the maximum output id
+            //set direction of snake depending on the m(0)imum output id
             if (max_output_id == 0) {
                 // turn left
-                if (dir.x != 0) {
-                    dir.y = dir.x;
-                    dir.x = 0;
+                if (dir(0) != 0) {
+                    dir(1) = dir(0);
+                    dir(0) = 0;
                 }
-                else if (dir.y != 0) {
-                    dir.x = dir.y;
-                    dir.y = 0;
+                else if (dir(1) != 0) {
+                    dir(0) = dir(1);
+                    dir(1) = 0;
                 }
             }
             else if (max_output_id == 1) {
                 // turn right
-                if (dir.x != 0) {
-                    dir.y = -dir.x;
-                    dir.x = 0;
+                if (dir(0) != 0) {
+                    dir(1) = -dir(0);
+                    dir(0) = 0;
                 }
-                else if (dir.y != 0) {
-                    dir.x = -dir.y;
-                    dir.y = 0;
+                else if (dir(1) != 0) {
+                    dir(0) = -dir(1);
+                    dir(1) = 0;
                 }
             }
             else if (max_output_id == 2) {
-                // stay on the same path 
+                // sticks on the same path 
                 // so do nothing to the direction
             } 
-            snake->setDirection(dir.x, dir.y);
+            snake->setDirection(dir);
 
             // check for collision
             if (snake->checkCollision(snake->getHead()) == 1) {

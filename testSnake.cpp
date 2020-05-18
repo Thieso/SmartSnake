@@ -1,18 +1,15 @@
+#include <eigen3/Eigen/Dense>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "include/Snake.h"
 
 using namespace std;
-
-struct direction {
-    int x;
-    int y;
-};
+using Eigen::Vector2d;
 
 int main() {
     // define window 
-    sf::RenderWindow window(sf::VideoMode(500, 500), "Snake");
+    sf::RenderWindow window(sf::VideoMode(800, 800), "Snake");
 
     // set size of the rectangles
     int xSize = 20;
@@ -21,10 +18,20 @@ int main() {
     // create a new Snake object
     Snake snake;
 
-    // create the direction struct with initial moving to the right
-    struct direction dir;
-    dir.x = 1;
-    dir.y = 0;
+    // create initial direction
+    random_device rd;
+    uniform_int_distribution<int> distribution(1, 4);
+    int int_dir = distribution(rd);
+    Vector2d dir;
+    if (int_dir == 1)
+        dir << 1, 0;
+    else if (int_dir == 2)
+        dir << -1, 0;
+    else if (int_dir == 3)
+        dir << 0, 1;
+    else if (int_dir == 4)
+        dir << 0, -1;
+    snake.setDirection(dir);
 
     // set framerate
     window.setFramerateLimit(30);
@@ -48,21 +55,21 @@ int main() {
         }
 
         // get keyboard input
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && dir.x == 0) {
-            dir.x = -1;
-            dir.y = 0;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && dir(0) == 0) {
+            dir(0) = -1;
+            dir(1) = 0;
         }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && dir.x == 0) {
-            dir.x = 1;
-            dir.y = 0;
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && dir(0) == 0) {
+            dir(0) = 1;
+            dir(1) = 0;
         }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && dir.y == 0) {
-            dir.x = 0;
-            dir.y = -1;
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && dir(1) == 0) {
+            dir(0) = 0;
+            dir(1) = -1;
         }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && dir.y == 0) {
-            dir.x = 0;
-            dir.y = 1;
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && dir(1) == 0) {
+            dir(0) = 0;
+            dir(1) = 1;
         }
 
         // check for collision
@@ -81,7 +88,7 @@ int main() {
         if (clock.getElapsedTime().asMilliseconds() >= speed){
             window.clear();
             clock.restart();
-            snake.setDirection(dir.x, dir.y);
+            snake.setDirection(dir);
             snake.moveSnake();
             // get food location and draw the food
             sf::RectangleShape drawingShape = snake.getFoodDrawingShape(xSize, ySize);

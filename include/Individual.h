@@ -11,6 +11,7 @@
 using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using Eigen::Vector2d;
 using Eigen::Map;
 
 class Individual {
