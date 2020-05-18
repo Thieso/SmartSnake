@@ -2,6 +2,10 @@
 main
 testIndividual
 testSnake
+testNN
+play_individual
 main.o
 *.o
 .ccls*
+fitness
+Results/*

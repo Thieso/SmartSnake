@@ -91,7 +91,8 @@ void NN::set_input(VectorXd input) {
     if (this->x.size() != x.size()) {
         cout << "ERROR: Vector dimensions do not match" << endl;
     } else {
-        x = input;
+        VectorXd i(input);
+        x = i;
     }
 }
 

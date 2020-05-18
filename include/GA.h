@@ -36,4 +36,5 @@ class GA {
         void crossover();
         void mutation();
         void replacement();
+        VectorXd get_gene_vector(int);
 };

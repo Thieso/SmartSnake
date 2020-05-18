@@ -147,10 +147,16 @@ void GA::mutation() {
     }
 }
 
+// replace current population with parents and children
 void GA::replacement() {
     population.clear();
     for (unsigned int i = 0; i < parents.size(); i++) {
         population.push_back(parents[i]);
         population.push_back(children[i]);
     }
+}
+
+// get gene vector of specified individual
+VectorXd GA::get_gene_vector(int idx) {
+    return population[idx].get_gene_vector();
 }

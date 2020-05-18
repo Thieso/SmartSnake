@@ -27,7 +27,7 @@ Individual::Individual(int nr_inputs, int nr_outputs, int nr_neurons_1, int nr_n
     // set initial fitness
     fitness = 1;
     // set maximum number of steps
-    maxSteps = 2000;
+    maxSteps = 3000;
 }
 
 // destructor
@@ -153,7 +153,7 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
         snake->moveSnake();
     }
     // compute score
-    score += (snake->getLength() - 1) * 5000;
+    score += (snake->getLength() - 1) * 3000;
     // return score
     return score;
 }
