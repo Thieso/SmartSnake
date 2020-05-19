@@ -33,7 +33,7 @@ class Individual {
         Individual(Individual&&);
         Individual(const Individual&);
         int evaluate_fitness(NN*, Snake*);
-        void show_game(sf::RenderWindow*, NN*, Snake*);
+        void show_game(sf::RenderWindow*, NN*, Snake*, int);
         VectorXd get_gene_vector();
         void set_gene_vector(VectorXd);
         Individual& operator=(Individual&&);

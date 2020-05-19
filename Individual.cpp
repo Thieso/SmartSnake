@@ -70,10 +70,6 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
     int max_output_id;
     float max_output;
 
-    // variables to keep track of directions
-    Vector2d prev_dir(dir);
-    int count_same_dir = 0;
-
     while (gameOver == 0) {
         // increase step variable
         step++;
@@ -121,20 +117,8 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
         } 
         snake->setDirection(dir);
 
-        // check wheter direction changed and decrease score if needed
-        if (prev_dir(0) == dir(0) && prev_dir(1) == dir(1)) {
-            count_same_dir += 1;
-        } else {
-            count_same_dir = 0;
-            prev_dir = dir;
-        }
-
-        // increase score for longer runtime but not if the same step is
-        // repeated too often
-        if (count_same_dir > 8)
-            score -= 1;
-        else
-            score += 2;
+        // increase score for longer runtime 
+        score += 2;
 
         // check for collision
         if (snake->checkCollision(snake->getHead()) == 1) {
@@ -164,7 +148,7 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
     return score;
 }
 
-void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake) {
+void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake, int generation) {
     // reset snake
     snake->reset();
 
@@ -189,8 +173,20 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake) {
     else if (int_dir == 4)
         dir << 0, -1;
 
-// set speed
+    // set speed in ms/step
     int speed = 50;
+
+    // create text object for information
+    sf::Text info_text;
+    sf::Font font;
+    font.loadFromFile("NotoMono-Regular.ttf");
+    info_text.setFont(font);
+    info_text.setCharacterSize(15); 
+    info_text.setFillColor(sf::Color::White);
+    info_text.setStyle(sf::Text::Bold);
+
+    // text string to display
+    string text_string;
 
     // create clock
     sf::Clock clock;
@@ -198,9 +194,17 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake) {
     // var for game over
     int gameOver = 0;
 
+    // step counter
+    int step = 0;
+
+    // score 
+    int score = 0;
+
     while (window->isOpen() && gameOver == 0) {
         // only draw the snake when a certain time has elapsed
         if (clock.getElapsedTime().asMilliseconds() >= speed){
+            // increase step variable
+            step++;
             // restart the clock
             clock.restart();
             // set input for neural network
@@ -246,9 +250,13 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake) {
             } 
             snake->setDirection(dir);
 
+            // increase score for longer runtime 
+            score += 2;
+
             // check for collision
             if (snake->checkCollision(snake->getHead()) == 1) {
                 gameOver = 1;
+                score -= 150;
             }
 
             // check if the food got eaten, if so set food to new location and grow
@@ -269,6 +277,14 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake) {
                 drawingShape = snake->getSnakeDrawingShape(xSize, ySize, i);
                 window->draw(drawingShape);
             }
+            // draw text to indicate the generation, score and steps
+            text_string = "Generation: " + to_string(generation) + "\n";
+            text_string += "Fitness: " + to_string(score + snake->getLength() * 5000) + "\n";
+            text_string += "Steps: " + to_string(step) + "\n";
+            info_text.setString(text_string);
+            info_text.setPosition(20, 20);
+            window->draw(info_text);
+
         }
 
         // Display all the changes on the screen

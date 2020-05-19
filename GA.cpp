@@ -28,8 +28,8 @@ VectorXd GA::evaluate_fitness(NN* nn, Snake* snake) {
 }
 
 // show the game on the window for individual with id id_individual
-void GA::show_game(sf::RenderWindow* window, NN* nn, Snake* snake, int id_individual) {
-    population[id_individual].show_game(window, nn, snake);
+void GA::show_game(sf::RenderWindow* window, NN* nn, Snake* snake, int id_individual, int generation) {
+    population[id_individual].show_game(window, nn, snake, generation);
 }
 
 // select new parents from the existing population based on their fitness value

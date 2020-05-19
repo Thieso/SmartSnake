@@ -31,7 +31,7 @@ class GA {
         GA(int, int, int, int, int, float, float);
         ~GA();
         VectorXd evaluate_fitness(NN*, Snake*);
-        void show_game(sf::RenderWindow*, NN*, Snake*, int);
+        void show_game(sf::RenderWindow*, NN*, Snake*, int, int);
         void selection();
         void crossover();
         void mutation();

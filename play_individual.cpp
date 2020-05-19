@@ -48,7 +48,7 @@ int main(int argc, char* argv[]){
     ind->set_gene_vector(logger.read_individual(generation_number, nr_genes));
 
     // show game of the snake
-    ind->show_game(window, nn, snake);
+    ind->show_game(window, nn, snake, generation_number);
 
     sf::Event event;
     while(window->isOpen()) {
