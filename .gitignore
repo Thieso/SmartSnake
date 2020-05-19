@@ -1,10 +1,9 @@
 .project
 main
-testIndividual
-testSnake
-testNN
+test_individual
+test_snake
+test_nn
 play_individual
-main.o
 *.o
 .ccls*
 fitness

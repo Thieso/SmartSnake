@@ -5,8 +5,7 @@ Snake::Snake() {
     // initialize parameters
     direction << 1, 0;
     length = 1;
-    maxLength = 100;
-    elements.resize(2, maxLength);
+    elements.resize(2, length);
     // set initial position in the middle of the field
     Vector2d initialPos((int) x / 2, (int) y / 2);
     elements.col(0) = initialPos;
@@ -18,8 +17,7 @@ void Snake::reset() {
     // reinitialize parameters
     direction << 1, 0;
     length = 1;
-    maxLength = 100;
-    elements.resize(2, maxLength);
+    elements.resize(2, length);
     // set initial position in the middle of the field
     Vector2d initialPos((int) x / 2, (int) y / 2);
     elements.col(0) = initialPos;
@@ -39,13 +37,18 @@ unsigned int Snake::getLength(){
 // adds an element to the snake
 void Snake::addElement(){
     length += 1;
+    // resize the matrix holding the elements (old_element matrix is necessary
+    // since a resizing deletes the components of a matrix)
+    MatrixXd old_elements(elements);
+    elements.resize(2, length);
+    elements.leftCols(length - 1) = old_elements;
 }
 
 // move the snake
 void Snake::moveSnake(){
     // move everything but the head
-    for (int i = length; i > 0; i--){
-        elements.col(i) = elements.col(i-1);
+    for (int i = length - 1; i > 0; i--){
+        elements.col(i) = elements.col(i - 1);
     }
     // move the head
     elements.col(0) = elements.col(0) + direction;

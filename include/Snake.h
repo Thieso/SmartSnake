@@ -16,7 +16,6 @@ class Snake {
         MatrixXd elements; // elements of the snake
         Vector2d food;             // food for the snake
         unsigned int length;                 // length of the snake
-        unsigned int maxLength;                 // length of the snake
         unsigned const int x = 40;           // size of field in x
         unsigned const int y = 40;           // size of field in y
         Vector2d direction;                  // direction of movement in x

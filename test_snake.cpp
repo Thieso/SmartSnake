@@ -94,7 +94,7 @@ int main() {
             sf::RectangleShape drawingShape = snake.getFoodDrawingShape(xSize, ySize);
             window.draw(drawingShape);
             // get snake location and draw it
-            for (int i = 0; i < snake.getLength(); i++) {
+            for (unsigned int i = 0; i < snake.getLength(); i++) {
                 drawingShape = snake.getSnakeDrawingShape(xSize, ySize, i);
                 window.draw(drawingShape);
             }

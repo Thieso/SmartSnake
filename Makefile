@@ -1,35 +1,39 @@
 CXX=g++
 LDFLAGS=-g
 LIBFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
-SOURCES=main.cpp Snake.cpp NN.cpp Individual.cpp GA.cpp Logger.cpp
+SOURCES=Snake.cpp NN.cpp Individual.cpp GA.cpp Logger.cpp
+SOURCES_MAIN=main.cpp play_individual.cpp test_snake.cpp test_individual.cpp test_nn.cpp
 OBJECTS=$(subst .cpp,.o,$(SOURCES))
-EXECUTABLE=main_computations
+OBJECTS_MAIN=$(subst .cpp,.o,$(SOURCES_MAIN))
+EXECUTABLES=main_computations play_individual test_snake test_individual test_nn
 INC_DIR=./include
 CXXFLAGS=-c -Wall -std=c++11 -g -I$(INC_DIR)/..
 BINDIR=/usr/bin
 
-all: $(SOURCES) $(EXECUTABLE) testSnake testIndividual testNN play_individual
+all: $(SOURCES) $(SOURCES_MAIN) main play_individual test_snake test_individual test_nn
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBFLAGS)
+main: $(OBJECTS) $(OBJECTS_MAIN)
+	$(CXX) $@.cpp $(CXXFLAGS) -o $@.o $(LIBFLAGS)
+	$(CXX) $(LDFLAGS) $@.o $(OBJECTS) -o $@ $(LIBFLAGS)
 
-testSnake: $(OBJECTS)
-	$(CXX) testSnake.cpp $(LDFLAGS) Snake.o -o testSnake $(LIBFLAGS)
+play_individual: $(OBJECTS) $(OBJECTS_MAIN)
+	$(CXX) $@.cpp $(CXXFLAGS) -o $@.o $(LIBFLAGS)
+	$(CXX) $(LDFLAGS) $@.o $(OBJECTS) -o $@ $(LIBFLAGS)
 
-testIndividual: $(OBJECTS)
-	$(CXX) testIndividual.cpp $(CXXFLAGS) -o testIndividual.o $(LIBFLAGS)
-	$(CXX) $(LDFLAGS) testIndividual.o Individual.o Snake.o NN.o  -o testIndividual $(LIBFLAGS)
+test_snake: $(OBJECTS) $(OBJECTS_MAIN)
+	$(CXX) $@.cpp $(CXXFLAGS) -o $@.o $(LIBFLAGS)
+	$(CXX) $(LDFLAGS) $@.o $(OBJECTS) -o $@ $(LIBFLAGS)
 
-testNN: $(OBJECTS)
-	$(CXX) testNN.cpp $(CXXFLAGS) -o testNN.o $(LIBFLAGS)
-	$(CXX) $(LDFLAGS) testNN.o NN.o -o testNN $(LIBFLAGS)
+test_individual: $(OBJECTS) $(OBJECTS_MAIN)
+	$(CXX) $@.cpp $(CXXFLAGS) -o $@.o $(LIBFLAGS)
+	$(CXX) $(LDFLAGS) $@.o $(OBJECTS) -o $@ $(LIBFLAGS)
 
-play_individual: $(OBJECTS)
-	$(CXX) play_individual.cpp $(CXXFLAGS) -o play_individual.o $(LIBFLAGS)
-	$(CXX) $(LDFLAGS) play_individual.o Individual.o Logger.o Snake.o NN.o -o play_individual $(LIBFLAGS)
+test_nn: $(OBJECTS) $(OBJECTS_MAIN)
+	$(CXX) $@.cpp $(CXXFLAGS) -o $@.o $(LIBFLAGS)
+	$(CXX) $(LDFLAGS) $@.o $(OBJECTS) -o $@ $(LIBFLAGS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LIBFLAGS)
 
 clean:
-	$(RM) $(OBJECTS) $(EXECUTABLE) testSnake testIndividual testNN play_individual
+	$(RM) *.o $(EXECUTABLES)
