@@ -26,14 +26,14 @@ void Logger::log_individual(VectorXd gene_vector, int generation) {
 
 // log vector of fitness values which contains the best fitness of each
 // generation
-void Logger::log_fitness_vector(VectorXd fitness) {
+void Logger::log_fitness_vector(VectorXd best_fitness, VectorXd sum_fitness) {
     // open file for writing
     ofstream fitness_file ("./" + fitness_file_name);
 
     // write fitness vector to file
     if (fitness_file.is_open()) {
-        for (int i = 0; i < fitness.size(); i++) {
-            fitness_file << i << " " << (double) fitness(i) << endl;
+        for (int i = 0; i < best_fitness.size(); i++) {
+            fitness_file << i << " " << (double) best_fitness(i) << " " << (double) sum_fitness(i) << endl;
         }
     }
     else 

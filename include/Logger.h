@@ -18,6 +18,6 @@ class Logger {
     public: 
         Logger();
         void log_individual(VectorXd, int);
-        void log_fitness_vector(VectorXd);
+        void log_fitness_vector(VectorXd, VectorXd);
         VectorXd read_individual(int, int);
 };

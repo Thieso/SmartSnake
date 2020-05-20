@@ -19,11 +19,12 @@ int main(){
     int nr_neurons_2 = 15;         // number of neurons of neural network hidden layer 2
     int population_size = 100;  // number of individuals in population
     float mutation_rate = 0.15; // mutation rate for genetic algorithm
-    float crossover_rate = 0.4; // crossover rate for genetic algorithm
-    int nr_generations = 500;  // number of generations to simulate
+    float crossover_rate = 0.5; // crossover rate for genetic algorithm
+    int nr_generations = 2000;  // number of generations to simulate
     GA ga(nr_inputs, nr_outputs, nr_neurons_1, nr_neurons_2, population_size, mutation_rate, crossover_rate);
     VectorXd fitness;
     VectorXd best_fitness(nr_generations);
+    VectorXd sum_fitness(nr_generations);
     int idx = 0;
     NN* nn = new NN(nr_inputs, nr_outputs, nr_neurons_1, nr_neurons_2);
     Snake* snake = new Snake();
@@ -35,6 +36,7 @@ int main(){
         fitness = ga.evaluate_fitness(nn, snake);
         idx = display_fitness(i, fitness);
         best_fitness(i) = fitness.maxCoeff();
+        sum_fitness(i) = fitness.sum();
         // log individual gene vector to file
         logger.log_individual(ga.get_gene_vector(idx), i);
         // do genetic algorithm iteration
@@ -45,7 +47,7 @@ int main(){
     }
 
     // log fitness vector
-    logger.log_fitness_vector(best_fitness);
+    logger.log_fitness_vector(best_fitness, sum_fitness);
 
     delete nn;
     delete snake;
@@ -63,7 +65,6 @@ int display_fitness(int gen, VectorXd fitness) {
             best_fitness = fitness(i);
         }
     }
-    //cout << gen << " " << best_fitness << " " << fitness.sum() << endl;
-    cout << gen << " " << best_fitness << endl;
+    cout << "Generation: " << gen << " Max Fitness: " << best_fitness << " Sum of Fitness: " << fitness.sum() <<  endl;
     return idx;
 }
