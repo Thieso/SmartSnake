@@ -55,11 +55,13 @@ has two hidden layers. Training the network is done by a genetic algorithm.
 
 ## Genetic algorithm
 
-The algorithm uses roulette wheel selection to select individuals as parents.
-The parents produce children by single point crossover and mutations. The
-parents make up the first half of the individuals in the next generation and the
-children make up the second half. This ensures that well performing parents
-remain in the population even when their children perform poorly. 
+The parameters than can be varied by the genetic algorithm are the weights of
+the neural network. The algorithm uses roulette wheel selection to select
+individuals as parents. The parents produce children by single point crossover
+and mutations. The parents make up the first half of the individuals in the next
+generation and the children make up the second half. This ensures that well
+performing parents remain in the population even when their children perform
+poorly. 
 
 ## Fitness function
 
