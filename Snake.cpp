@@ -56,20 +56,23 @@ void Snake::moveSnake(){
 
 // check for collisions in the snake itself or with the wall of the given
 // position on the grid
-// return 1 if a collision is there, otherwise return zero
+// return 1 if a collision is there, otherwise return zero, return -1 if food is
+// collision
 int Snake::checkCollision(Vector2d pos) {
     // compare the position of the head with the position of each element and if
     // the coincide there is a collision
     for (unsigned int i = 1; i < length; i++){
-        if (pos == elements.col(i)){
+        if (pos == elements.col(i))
             return 1;
-        }
     }
 
     // check for collision of the head with the wall
-    if (pos(0) > x - 1 || pos(0) < 0 || pos(1) > y - 1 || pos(1) < 0){
+    if (pos(0) > x - 1 || pos(0) < 0 || pos(1) > y - 1 || pos(1) < 0)
         return 1;
-    }
+
+    if (pos == food)
+        return -1;
+
     return 0;
 }
 
@@ -134,9 +137,11 @@ VectorXd Snake::getInputs() {
     // relative position of food to snake head
     Vector2d relPos = food - headPos;
     float normFactor = sqrt(relPos(0) * relPos(0) + relPos(1) * relPos(1));
+    if (normFactor == 0)
+        normFactor = 1;
 
     // set input vector
-    VectorXd inputs(7);
+    VectorXd inputs(9);
     // blocking information
     inputs(0) = front_blocked;
     inputs(1) = left_blocked;
@@ -144,9 +149,12 @@ VectorXd Snake::getInputs() {
     // position of the food relative to position of the head (normalized)
     inputs(3) = relPos(0) / normFactor;
     inputs(4) = relPos(1) / normFactor;
-    // direction of movement (normalized)
+    // direction of movement 
     inputs(5) = direction(0);
     inputs(6) = direction(1);
+    // distance between food and snake (normalized)
+    inputs(7) = relPos(0) / x;
+    inputs(8) = relPos(1) / y;
 
     return inputs;
 }

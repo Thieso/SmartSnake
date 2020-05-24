@@ -21,8 +21,11 @@ GA::~GA() {
 // evaluate the fitness of all individuals in the current population
 VectorXd GA::evaluate_fitness(NN* nn, Snake* snake) {
     // iterate over the population and compute their fitness
+    VectorXd fitness_ind(10);
     for (unsigned int i = 0; i < population.size(); i++) {
-        current_fitness(i) = population[i].evaluate_fitness(nn, snake);
+        for (int j = 0; j < 10; j++)
+            fitness_ind(j) = population[i].evaluate_fitness(nn, snake);
+        current_fitness(i) = fitness_ind.mean();
     }
     return current_fitness;
 }
@@ -32,14 +35,13 @@ void GA::show_game(sf::RenderWindow* window, NN* nn, Snake* snake, int id_indivi
     population[id_individual].show_game(window, nn, snake, generation);
 }
 
-// select new parents from the existing population based on their fitness value
-void GA::selection() {
+// select new parents using roulette wheel selection
+void GA::selection_roulette_wheel() {
     parents.clear();
     children.clear();
     // initialize random number generator
     random_device rd;
     uniform_real_distribution<float> distribution(0.0, 1.0);
-    // vector of individuals making up the parents
     // compute total fitness
     float total_fitness = current_fitness.sum();
     // find the size of the roulette wheel part of each individual
@@ -59,6 +61,26 @@ void GA::selection() {
         // look where the wheel stops and select the parent
         for (int j = 0; j < population_size; j++) {
             if (wheel_spin <= roulette_wheel(j)) {
+                parents.push_back(population[j]);
+                children.push_back(population[j]);
+                break;
+            }
+        }
+    }
+}
+
+// select parents simply by choosing the fittest ones
+void GA::selection_fittest() {
+    parents.clear();
+    children.clear();
+    // find the size of the roulette wheel part of each individual
+    VectorXd sorted_fitness(current_fitness);
+    std::sort(sorted_fitness.data(),sorted_fitness.data()+sorted_fitness.size());
+    // iterate over parents and find the fittest
+    for (int i = 0; i < nr_parents; i++) {
+        // look where the wheel stops and select the parent
+        for (int j = 0; j < population_size; j++) {
+            if (current_fitness(j) == sorted_fitness(i)) {
                 parents.push_back(population[j]);
                 children.push_back(population[j]);
                 break;
@@ -124,11 +146,10 @@ void GA::crossover() {
 
 // apply mutations to the existing population
 void GA::mutation() {
+    // initialize random number generator
     random_device rd;
     uniform_real_distribution<float> distribution(0.0, 1.0);
     uniform_real_distribution<float> mutation_dist(-0.10, 0.10);
-    // initialize random number generator
-    srand(time(NULL));
     // iterate over all gene vector and mutate them if necessary
     VectorXd gene_vector;
     float random_number;
@@ -151,7 +172,7 @@ void GA::mutation() {
 void GA::replacement() {
     population.clear();
     for (unsigned int i = 0; i < parents.size(); i++) {
-        population.push_back(parents[i]);
+        //population.push_back(parents[i]);
         population.push_back(children[i]);
     }
 }

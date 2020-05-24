@@ -15,7 +15,7 @@ void Logger::log_individual(VectorXd gene_vector, int generation) {
     // write gene_vector to file
     if (ind_file.is_open()) {
         for (int i = 0; i < gene_vector.size(); i++) {
-            if (abs(gene_vector(i)) < 1e-15) 
+            if (abs(gene_vector(i)) < 1e-20) 
                 gene_vector(i) = 0;
             ind_file << setprecision(20) << (double) gene_vector(i) << endl;
         }

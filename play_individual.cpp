@@ -1,6 +1,7 @@
 #include <eigen3/Eigen/Dense>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <unistd.h>
 #include <iostream>
 #include "include/GA.h"
 #include "include/Logger.h"
@@ -15,13 +16,11 @@ int main(int argc, char* argv[]){
     int generation_number = stoi(argv[1]);
 
     // set parameters for the optimization
-    int nr_inputs        = 7;    // number of inputs of neural network
+    int nr_inputs        = 9;    // number of inputs of neural network
     int nr_outputs       = 3;    // number of outputs of neural network
-    int nr_neurons_1     = 9;    // number of neurons of neural network hidden layer 1
+    int nr_neurons_1     = 11;   // number of neurons of neural network hidden layer 1
     int nr_neurons_2     = 15;   // number of neurons of neural network hidden layer 2
-    int nr_generations   = 1000; // number of generations to simulate
     VectorXd fitness;            // vector for fitness values in a generation
-    VectorXd best_fitness(nr_generations); // vector for best fitness values in each generation
 
     // logger object 
     Logger logger;
@@ -33,7 +32,7 @@ int main(int argc, char* argv[]){
     NN* nn = new NN(nr_inputs, nr_outputs, nr_neurons_1, nr_neurons_2);
 
     // window for showing the gameplay
-    sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(800, 800), "Snake");
+    sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(600, 600), "Snake");
     // set framerate
     window->setFramerateLimit(30);
 
@@ -47,9 +46,27 @@ int main(int argc, char* argv[]){
     // set gene vector
     ind->set_gene_vector(logger.read_individual(generation_number, nr_genes));
 
-    // show game of the snake
-    ind->show_game(window, nn, snake, generation_number);
+    // compute fitness value
+    int nr_evaluation = 100;
+    VectorXd v_fitness(nr_evaluation);
+    for (int i = 0; i < nr_evaluation; i++) {
+        v_fitness(i) = ind->evaluate_fitness(nn, snake);
+    }
+    // display max mean and min fitness
+    cout << "Max Fitness: " << v_fitness.maxCoeff() << endl;
+    cout << "Min Fitness: " << v_fitness.minCoeff() << endl;
+    cout << "Mean Fitness: " << v_fitness.mean() << endl;
 
+    // wait for some seconds to start the game
+    for (int i = 10; i >= 0; i--) {
+        cout << "Starting game in " << i << endl;
+        usleep(1000000);
+    }
+
+    // show game of the snake
+    ind->show_game(window, nn, snake, generation_number+1);
+
+    cout << "Game finished. Close game window" << endl;
     sf::Event event;
     while(window->isOpen()) {
         while (window->pollEvent(event)) {

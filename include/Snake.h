@@ -13,12 +13,12 @@ using Eigen::Vector2d;
 
 class Snake {
     private: 
-        MatrixXd elements; // elements of the snake
+        MatrixXd elements;         // elements of the snake
         Vector2d food;             // food for the snake
-        unsigned int length;                 // length of the snake
-        unsigned const int x = 40;           // size of field in x
-        unsigned const int y = 40;           // size of field in y
-        Vector2d direction;                  // direction of movement in x
+        unsigned int length;       // length of the snake
+        unsigned const int x = 30; // size of field in x
+        unsigned const int y = 30; // size of field in y
+        Vector2d direction;        // direction of movement in x
 
     public: 
         Snake(); 

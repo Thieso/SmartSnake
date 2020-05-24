@@ -32,7 +32,8 @@ class GA {
         ~GA();
         VectorXd evaluate_fitness(NN*, Snake*);
         void show_game(sf::RenderWindow*, NN*, Snake*, int, int);
-        void selection();
+        void selection_roulette_wheel();
+        void selection_fittest();
         void crossover();
         void mutation();
         void replacement();

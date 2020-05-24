@@ -9,7 +9,7 @@ using Eigen::Vector2d;
 
 int main() {
     // define window 
-    sf::RenderWindow window(sf::VideoMode(800, 800), "Snake");
+    sf::RenderWindow window(sf::VideoMode(600, 600), "Snake");
 
     // set size of the rectangles
     int xSize = 20;

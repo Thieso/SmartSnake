@@ -17,7 +17,7 @@ int main(){
     int nr_neurons_2 = 7;
     Individual ind(nr_inputs, nr_outputs, nr_neurons_1, nr_neurons_2);
     NN* nn = new NN(nr_inputs, nr_outputs, nr_neurons_1, nr_neurons_2);
-    sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(500, 500), "Snake");
+    sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(600, 600), "Snake");
     Snake* snake = new Snake();
     int f = ind.evaluate_fitness(nn, snake);
     cout << "Fitness: " << f << endl;

@@ -14,7 +14,7 @@ Individual::Individual(int nr_inputs, int nr_outputs, int nr_neurons_1, int nr_n
     outputs.resize(nr_outputs);
     // randomize the weigths
     random_device rd;
-    uniform_real_distribution<float> distribution(-1.0, 1.0);
+    uniform_real_distribution<float> distribution(-3.0, 3.0);
     for (int i = 0; i < wh_1.size(); i++) {
         wh_1(i) = distribution(rd);
     }
@@ -27,7 +27,7 @@ Individual::Individual(int nr_inputs, int nr_outputs, int nr_neurons_1, int nr_n
     // set initial fitness
     fitness = 1;
     // set maximum number of steps
-    maxSteps = 3000;
+    maxSteps = 2000;
 }
 
 // destructor
@@ -56,6 +56,10 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
     else if (int_dir == 4)
         dir << 0, -1;
     snake->setDirection(dir);
+
+    // previous direction checking
+    int count_prev_dir = 0;
+    Vector2d prev_dir = dir;
 
     // var for game over
     int gameOver = 0;
@@ -117,13 +121,22 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
         } 
         snake->setDirection(dir);
 
+        // check prev direction 
+        if (prev_dir == dir)
+            count_prev_dir++;
+        else
+            count_prev_dir = 0;
+
         // increase score for longer runtime 
-        score += 2;
+        if (count_prev_dir > 7)
+            score -= 2;
+        else
+            score += 1;
 
         // check for collision
         if (snake->checkCollision(snake->getHead()) == 1) {
             gameOver = 1;
-            score -= 150;
+            score -= 2500;
         }
 
         // check for maximum number of steps
@@ -143,7 +156,7 @@ int Individual::evaluate_fitness(NN* nn, Snake* snake) {
         snake->moveSnake();
     }
     // compute score
-    score += (snake->getLength() - 1) * 5000;
+    score += snake->getLength() * 3000;
     // return score
     return score;
 }
@@ -172,6 +185,11 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake, int g
         dir << 0, 1;
     else if (int_dir == 4)
         dir << 0, -1;
+    snake->setDirection(dir);
+
+    // previous direction checking
+    int count_prev_dir = 0;
+    Vector2d prev_dir = dir;
 
     // set speed in ms/step
     int speed = 50;
@@ -250,13 +268,23 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake, int g
             } 
             snake->setDirection(dir);
 
+
+            // check prev direction 
+            if (prev_dir == dir)
+                count_prev_dir++;
+            else
+                count_prev_dir = 0;
+
             // increase score for longer runtime 
-            score += 2;
+            if (count_prev_dir > 7)
+                score -= 2;
+            else
+                score += 1;
 
             // check for collision
             if (snake->checkCollision(snake->getHead()) == 1) {
                 gameOver = 1;
-                score -= 150;
+                score -= 2500;
             }
 
             // check if the food got eaten, if so set food to new location and grow
@@ -267,8 +295,8 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake, int g
             }
 
             // move and draw the snake
-            window->clear();
             snake->moveSnake();
+            window->clear();
             // get food location and draw the food
             sf::RectangleShape drawingShape = snake->getFoodDrawingShape(xSize, ySize);
             window->draw(drawingShape);
@@ -279,16 +307,24 @@ void Individual::show_game(sf::RenderWindow* window, NN* nn, Snake* snake, int g
             }
             // draw text to indicate the generation, score and steps
             text_string = "Generation: " + to_string(generation) + "\n";
-            text_string += "Fitness: " + to_string(score + snake->getLength() * 5000) + "\n";
-            text_string += "Steps: " + to_string(step) + "\n";
+            text_string += "Fitness: " + to_string(score + snake->getLength() * 3000) + "\n";
+            //text_string += "Steps: " + to_string(step) + "\n";
+            //text_string += "Blocked Front: " + to_string((int) inputs(0)) + "\n";
+            //text_string += "Blocked Left: " + to_string((int) inputs(1)) + "\n";
+            //text_string += "Blocked Right: " + to_string((int) inputs(2)) + "\n";
+            //text_string += "Rel. Pos. x: " + to_string(inputs(3)) + "\n";
+            //text_string += "Rel. Pos. y: " + to_string(inputs(4)) + "\n";
+            //text_string += "Snake Dir. x: " + to_string((int) inputs(5)) + "\n";
+            //text_string += "Snake Dir. y: " + to_string((int) inputs(6)) + "\n";
+            //text_string += "Dist. Food x: " + to_string(inputs(7)) + "\n";
+            //text_string += "Dist. Food. y: " + to_string(inputs(8)) + "\n";
             info_text.setString(text_string);
             info_text.setPosition(20, 20);
             window->draw(info_text);
 
+            // Display all the changes on the screen
+            window->display();
         }
-
-        // Display all the changes on the screen
-        window->display();
     }
 }
 
