@@ -1,25 +1,38 @@
-#include <vector>
+#pragma once
+#include <eigen3/Eigen/Dense>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <vector>
+#include <random>
+#include <iostream>
 
 using namespace std; 
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
+using Eigen::Vector2d;
 
 class Snake {
     private: 
-        vector<sf::RectangleShape> elements; // elements of the snake
-        vector<sf::Vector2f> newPos;         // new positions of the elements after moving
-        unsigned int length;                 // length of the snake
-        sf::RenderWindow* win;               // window to draw in
-        unsigned const int xSize = 20;       // size of each element in x direction
-        unsigned const int ySize = 20;       // size of each element in y direction
-        const int step = 20;                 // step size of the snake
+        MatrixXd elements;         // elements of the snake
+        Vector2d food;             // food for the snake
+        unsigned int length;       // length of the snake
+        unsigned const int x = 30; // size of field in x
+        unsigned const int y = 30; // size of field in y
+        Vector2d direction;        // direction of movement in x
 
     public: 
-        Snake(sf::RenderWindow*); 
+        Snake(); 
         ~Snake(); 
+        void reset(); 
         unsigned int getLength(); 
-        sf::Vector2f getHead(); 
+        Vector2d getHead(); 
         void addElement(); 
-        void moveSnake(const int, const int); 
-        int checkCollision(); 
+        void moveSnake(); 
+        int checkCollision(Vector2d); 
+        int checkFood();
+        void setFood();
+        VectorXd getInputs();
+        void setDirection(Vector2d);
+        sf::RectangleShape getFoodDrawingShape(int, int);
+        sf::RectangleShape getSnakeDrawingShape(int, int, int);
 };

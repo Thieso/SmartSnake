@@ -1,5 +1,11 @@
 .project
 main
+<<<<<<< HEAD
+main.o
+.*
+Results/*
+fitness
+=======
 test_individual
 test_snake
 test_nn
@@ -8,3 +14,4 @@ play_individual
 .ccls*
 fitness
 Results/*
+>>>>>>> genetic_algorithm
