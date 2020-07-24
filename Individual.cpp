@@ -12,17 +12,20 @@ Individual::Individual(int nr_inputs, int nr_outputs, int nr_neurons_1, int nr_n
     wo.resize(nr_outputs, nr_neurons_2 + 1);
     inputs.resize(nr_inputs);
     outputs.resize(nr_outputs);
-    // randomize the weigths
+    // randomize the weigths, chose the range of the distribution based on the
+    // number of neurons to avoid overfitting
     random_device rd;
-    uniform_real_distribution<float> distribution(-3.0, 3.0);
+    uniform_real_distribution<float> distribution1(-1.0 / sqrt(nr_neurons_1), 1.0 / sqrt(nr_neurons_1));
+    uniform_real_distribution<float> distribution2(-1.0 / sqrt(nr_neurons_2), 1.0 / sqrt(nr_neurons_2));
+    uniform_real_distribution<float> distribution3(-1.0 / sqrt(nr_outputs), 1.0 / sqrt(nr_outputs));
     for (int i = 0; i < wh_1.size(); i++) {
-        wh_1(i) = distribution(rd);
+        wh_1(i) = distribution1(rd);
     }
     for (int i = 0; i < wh_2.size(); i++) {
-        wh_2(i) = distribution(rd);
+        wh_2(i) = distribution2(rd);
     }
     for (int i = 0; i < wo.size(); i++) {
-        wo(i) = distribution(rd);
+        wo(i) = distribution3(rd);
     }
     // set initial fitness
     fitness = 1;

@@ -149,7 +149,7 @@ void GA::mutation() {
     // initialize random number generator
     random_device rd;
     uniform_real_distribution<float> distribution(0.0, 1.0);
-    uniform_real_distribution<float> mutation_dist(-0.10, 0.10);
+    uniform_real_distribution<float> mutation_dist(-0.02, 0.02);
     // iterate over all gene vector and mutate them if necessary
     VectorXd gene_vector;
     float random_number;
